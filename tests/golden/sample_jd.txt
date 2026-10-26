@@ -1,0 +1,18 @@
+Vị trí: Senior Backend Engineer (Cloud & Microservices)
+Công ty: TechNova Solutions
+Địa điểm: Hà Nội / Remote
+
+Mô tả công việc:
+- Chịu trách nhiệm thiết kế, phát triển và tối ưu hoá hệ thống backend microservices phân tán phục vụ hàng triệu người dùng.
+- Làm việc với cơ sở dữ liệu lớn PostgreSQL, NoSQL (MongoDB, Redis caching) và thông điệp Kafka.
+- Triển khai, vận hành và giám sát hệ thống trên nền tảng AWS (EKS/ECS, S3, RDS, CloudWatch).
+- Tối ưu hiệu năng, giảm độ trễ, đảm bảo tính sẵn sàng cao (High Availability 99.99%) và chuẩn bảo mật.
+- Hướng dẫn và review code cho các kỹ sư trẻ trong team.
+
+Yêu cầu ứng viên:
+- Tối thiểu 4 năm kinh nghiệm phát triển phần mềm Backend (Python, Golang hoặc Java).
+- Thành thạo kiến trúc Microservices, RESTful API và Event-driven architecture.
+- Kinh nghiệm thực tế với Docker, Kubernetes, CI/CD và điện toán đám mây AWS.
+- Khả năng phân tích và tối ưu truy vấn cơ sở dữ liệu (PostgreSQL/MySQL indexing, partitioning).
+- Tư duy hướng kết quả, kỹ năng giao tiếp và giải quyết vấn đề tốt.
+- Ưu tiên ứng viên có chứng chỉ AWS hoặc chứng chỉ Kubernetes CKA.

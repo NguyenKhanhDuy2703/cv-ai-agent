@@ -1,0 +1,1086 @@
+{
+  "type": "object",
+  "properties": {
+    "cv": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "headline": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "website": {
+          "type": "string"
+        },
+        "photo_url": {
+          "type": "string"
+        },
+        "social_networks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "network": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "network",
+              "username"
+            ],
+            "additionalProperties": {}
+          }
+        },
+        "custom_connections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "placeholder": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": {}
+          }
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string"
+              },
+              "entryType": {
+                "type": "string",
+                "enum": [
+                  "Text",
+                  "Experience",
+                  "Education",
+                  "Publication",
+                  "One-Line",
+                  "Bullet",
+                  "Numbered",
+                  "Reversed Numbered",
+                  "Normal"
+                ]
+              },
+              "entries": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Text"
+                          ]
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "text"
+                      ],
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Experience"
+                          ]
+                        },
+                        "company": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "string"
+                        },
+                        "highlights": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "date": {
+                          "type": "string"
+                        },
+                        "start_date": {
+                          "type": "string"
+                        },
+                        "end_date": {
+                          "type": "string"
+                        },
+                        "location": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "company",
+                        "position",
+                        "highlights"
+                      ],
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Education"
+                          ]
+                        },
+                        "institution": {
+                          "type": "string"
+                        },
+                        "area": {
+                          "type": "string"
+                        },
+                        "degree": {
+                          "type": "string"
+                        },
+                        "highlights": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "date": {
+                          "type": "string"
+                        },
+                        "start_date": {
+                          "type": "string"
+                        },
+                        "end_date": {
+                          "type": "string"
+                        },
+                        "location": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "institution",
+                        "area",
+                        "degree",
+                        "highlights"
+                      ],
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Normal"
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "highlights": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "date": {
+                          "type": "string"
+                        },
+                        "start_date": {
+                          "type": "string"
+                        },
+                        "end_date": {
+                          "type": "string"
+                        },
+                        "location": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "name",
+                        "highlights"
+                      ],
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Publication"
+                          ]
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "authors": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "journal": {
+                          "type": "string"
+                        },
+                        "date": {
+                          "type": "string"
+                        },
+                        "doi": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "title",
+                        "authors",
+                        "journal"
+                      ],
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "One-Line"
+                          ]
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "label",
+                        "details"
+                      ],
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Bullet"
+                          ]
+                        },
+                        "bullet": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "bullet"
+                      ],
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Numbered"
+                          ]
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "text"
+                      ],
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Reversed Numbered"
+                          ]
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "text"
+                      ],
+                      "additionalProperties": {}
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "entryType",
+              "entries"
+            ],
+            "additionalProperties": {}
+          }
+        }
+      },
+      "required": [
+        "name",
+        "headline",
+        "location",
+        "email",
+        "phone",
+        "website",
+        "photo_url",
+        "social_networks",
+        "custom_connections",
+        "sections"
+      ],
+      "additionalProperties": {}
+    },
+    "design": {
+      "type": "object",
+      "properties": {
+        "theme": {
+          "type": "string",
+          "enum": [
+            "classic",
+            "ember",
+            "engineeringclassic",
+            "engineeringresumes",
+            "harvard",
+            "ink",
+            "moderncv",
+            "opal",
+            "sb2nov"
+          ]
+        },
+        "page": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "string",
+              "enum": [
+                "a4",
+                "usletter"
+              ]
+            },
+            "top_margin": {
+              "type": "string"
+            },
+            "bottom_margin": {
+              "type": "string"
+            },
+            "left_margin": {
+              "type": "string"
+            },
+            "right_margin": {
+              "type": "string"
+            },
+            "show_footer": {
+              "type": "boolean"
+            },
+            "show_top_note": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "size",
+            "top_margin",
+            "bottom_margin",
+            "left_margin",
+            "right_margin",
+            "show_footer",
+            "show_top_note"
+          ],
+          "additionalProperties": {}
+        },
+        "colors": {
+          "type": "object",
+          "properties": {
+            "body": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "headline": {
+              "type": "string"
+            },
+            "connections": {
+              "type": "string"
+            },
+            "section_titles": {
+              "type": "string"
+            },
+            "links": {
+              "type": "string"
+            },
+            "footer": {
+              "type": "string"
+            },
+            "top_note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "body",
+            "name",
+            "headline",
+            "connections",
+            "section_titles",
+            "links",
+            "footer",
+            "top_note"
+          ],
+          "additionalProperties": {}
+        },
+        "typography": {
+          "type": "object",
+          "properties": {
+            "line_spacing": {
+              "type": "string"
+            },
+            "alignment": {
+              "type": "string",
+              "enum": [
+                "left",
+                "justified",
+                "no-hyphenation"
+              ]
+            },
+            "date_and_location_alignment": {
+              "type": "string",
+              "enum": [
+                "left",
+                "center",
+                "right"
+              ]
+            }
+          },
+          "required": [
+            "line_spacing",
+            "alignment",
+            "date_and_location_alignment"
+          ],
+          "additionalProperties": {}
+        },
+        "font_family": {
+          "type": "object",
+          "properties": {
+            "body": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "headline": {
+              "type": "string",
+              "minLength": 1
+            },
+            "connections": {
+              "type": "string",
+              "minLength": 1
+            },
+            "section_titles": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "body",
+            "name",
+            "headline",
+            "connections",
+            "section_titles"
+          ],
+          "additionalProperties": {}
+        },
+        "font_size": {
+          "type": "object",
+          "properties": {
+            "body": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "headline": {
+              "type": "string"
+            },
+            "connections": {
+              "type": "string"
+            },
+            "section_titles": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "body",
+            "name",
+            "headline",
+            "connections",
+            "section_titles"
+          ],
+          "additionalProperties": {}
+        },
+        "small_caps": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "boolean"
+            },
+            "headline": {
+              "type": "boolean"
+            },
+            "connections": {
+              "type": "boolean"
+            },
+            "section_titles": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "name",
+            "headline",
+            "connections",
+            "section_titles"
+          ],
+          "additionalProperties": {}
+        },
+        "bold": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "boolean"
+            },
+            "headline": {
+              "type": "boolean"
+            },
+            "connections": {
+              "type": "boolean"
+            },
+            "section_titles": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "name",
+            "headline",
+            "connections",
+            "section_titles"
+          ],
+          "additionalProperties": {}
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "underline": {
+              "type": "boolean"
+            },
+            "show_external_link_icon": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "underline",
+            "show_external_link_icon"
+          ],
+          "additionalProperties": {}
+        },
+        "header": {
+          "type": "object",
+          "properties": {
+            "alignment": {
+              "type": "string",
+              "enum": [
+                "left",
+                "center",
+                "right"
+              ]
+            },
+            "photo_width": {
+              "type": "string"
+            },
+            "photo_position": {
+              "type": "string",
+              "enum": [
+                "left",
+                "right"
+              ]
+            },
+            "photo_space_left": {
+              "type": "string"
+            },
+            "photo_space_right": {
+              "type": "string"
+            },
+            "space_below_name": {
+              "type": "string"
+            },
+            "space_below_headline": {
+              "type": "string"
+            },
+            "space_below_connections": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "alignment",
+            "photo_width",
+            "photo_position",
+            "photo_space_left",
+            "photo_space_right",
+            "space_below_name",
+            "space_below_headline",
+            "space_below_connections"
+          ],
+          "additionalProperties": {}
+        },
+        "header_connections": {
+          "type": "object",
+          "properties": {
+            "phone_number_format": {
+              "type": "string",
+              "enum": [
+                "national",
+                "international",
+                "e164"
+              ]
+            },
+            "hyperlink": {
+              "type": "boolean"
+            },
+            "show_icons": {
+              "type": "boolean"
+            },
+            "display_urls_instead_of_usernames": {
+              "type": "boolean"
+            },
+            "separator": {
+              "type": "string"
+            },
+            "space_between_connections": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "phone_number_format",
+            "hyperlink",
+            "show_icons",
+            "display_urls_instead_of_usernames",
+            "separator",
+            "space_between_connections"
+          ],
+          "additionalProperties": {}
+        },
+        "section_titles": {
+          "type": "object",
+          "properties": {
+            "style": {
+              "type": "string",
+              "enum": [
+                "full_line",
+                "partial_line",
+                "no_line",
+                "moderncv",
+                "centered",
+                "centered_partial_line",
+                "centered_with_centered_line",
+                "centered_full_line"
+              ]
+            },
+            "line_thickness": {
+              "type": "string"
+            },
+            "space_above": {
+              "type": "string"
+            },
+            "space_below": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "style",
+            "line_thickness",
+            "space_above",
+            "space_below"
+          ],
+          "additionalProperties": {}
+        },
+        "sections": {
+          "type": "object",
+          "properties": {
+            "allow_page_break": {
+              "type": "boolean"
+            },
+            "space_between_regular_entries": {
+              "type": "string"
+            },
+            "space_between_text_entries": {
+              "type": "string"
+            },
+            "show_time_spans_in": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "allow_page_break",
+            "space_between_regular_entries",
+            "space_between_text_entries",
+            "show_time_spans_in"
+          ],
+          "additionalProperties": {}
+        },
+        "entries": {
+          "type": "object",
+          "properties": {
+            "date_and_location_width": {
+              "type": "string"
+            },
+            "side_space": {
+              "type": "string"
+            },
+            "column_spacing": {
+              "type": "string"
+            },
+            "allow_page_break": {
+              "type": "boolean"
+            },
+            "short_second_row": {
+              "type": "boolean"
+            },
+            "degree_width": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "date_and_location_width",
+            "side_space",
+            "column_spacing",
+            "allow_page_break",
+            "short_second_row",
+            "degree_width"
+          ],
+          "additionalProperties": {}
+        },
+        "entry_summary": {
+          "type": "object",
+          "properties": {
+            "space_above": {
+              "type": "string"
+            },
+            "space_left": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "space_above",
+            "space_left"
+          ],
+          "additionalProperties": {}
+        },
+        "entry_highlights": {
+          "type": "object",
+          "properties": {
+            "bullet": {
+              "type": "string"
+            },
+            "nested_bullet": {
+              "type": "string"
+            },
+            "space_left": {
+              "type": "string"
+            },
+            "space_above": {
+              "type": "string"
+            },
+            "space_between_items": {
+              "type": "string"
+            },
+            "space_between_bullet_and_text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "bullet",
+            "nested_bullet",
+            "space_left",
+            "space_above",
+            "space_between_items",
+            "space_between_bullet_and_text"
+          ],
+          "additionalProperties": {}
+        },
+        "templates": {
+          "type": "object",
+          "properties": {
+            "footer": {
+              "type": "string"
+            },
+            "top_note": {
+              "type": "string"
+            },
+            "single_date": {
+              "type": "string"
+            },
+            "date_range": {
+              "type": "string"
+            },
+            "time_span": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "theme",
+        "page",
+        "colors",
+        "typography",
+        "font_family",
+        "font_size",
+        "small_caps",
+        "bold",
+        "links",
+        "header",
+        "header_connections",
+        "section_titles",
+        "sections",
+        "entries",
+        "entry_summary",
+        "entry_highlights",
+        "templates"
+      ],
+      "additionalProperties": {}
+    },
+    "locale": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string"
+        },
+        "last_updated": {
+          "type": "string"
+        },
+        "present": {
+          "type": "string"
+        },
+        "month": {
+          "type": "string"
+        },
+        "months": {
+          "type": "string"
+        },
+        "year": {
+          "type": "string"
+        },
+        "years": {
+          "type": "string"
+        },
+        "phrases": {
+          "type": "object",
+          "properties": {
+            "degree_with_area": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "degree_with_area"
+          ],
+          "additionalProperties": {}
+        },
+        "month_names": {
+          "minItems": 12,
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "month_abbreviations": {
+          "minItems": 12,
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "language",
+        "last_updated",
+        "present",
+        "month",
+        "months",
+        "year",
+        "years",
+        "phrases",
+        "month_names",
+        "month_abbreviations"
+      ],
+      "additionalProperties": {}
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "current_date": {
+          "type": "string"
+        },
+        "bold_keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pdf_title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "current_date",
+        "bold_keywords",
+        "pdf_title"
+      ],
+      "additionalProperties": {}
+    }
+  },
+  "required": [
+    "cv",
+    "design",
+    "locale",
+    "settings"
+  ],
+  "additionalProperties": {}
+}

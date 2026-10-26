@@ -1,0 +1,53 @@
+name: "David Nguyen"
+position: "Lead Cloud Architect"
+objective: "Cloud Architect with 8+ years designing scalable AWS infrastructure, Kubernetes orchestration, and enterprise DevOps automation."
+contact:
+  email: "david.nguyen@example.com"
+  phone: "+84 912 345 678"
+  location: "Ho Chi Minh City, Vietnam"
+  linkedin: "https://linkedin.com/in/davidnguyen-cloud"
+  github: "https://github.com/davidcloud"
+
+experience:
+  - company: "Sea Group"
+    title: "Principal Cloud Engineer"
+    start: "2020-04"
+    end: "Present"
+    location: "Ho Chi Minh City"
+    highlights:
+      - "Architected multi-region Kubernetes clusters supporting 20M daily active users with 99.99% uptime"
+      - "Implemented FinOps cost optimization framework yielding $300k annual cloud savings"
+      - "Standardized infrastructure as code using Terraform and GitOps across 40 engineering teams"
+
+  - company: "Grab"
+    title: "Senior DevOps Engineer"
+    start: "2017-08"
+    end: "2020-03"
+    location: "Singapore"
+    highlights:
+      - "Automated deployment pipelines cutting release cycle from 3 days to 15 minutes"
+      - "Designed zero-trust network mesh using Istio and Envoy proxy"
+
+education:
+  - institution: "National University of Singapore"
+    degree: "B.S. in Computer Science"
+    year: "2017"
+
+projects:
+  - name: "Global Cloud Disaster Recovery Automation"
+    role: "Lead Architect"
+    highlights:
+      - "Engineered cross-region failover automation achieving RTO under 3 minutes and RPO zero"
+
+achievements:
+  - "AWS Certified Solutions Architect - Professional"
+  - "Certified Kubernetes Administrator (CKA)"
+
+bonus:
+  directives:
+    - "Emphasize Kubernetes and FinOps cost reduction"
+    - "Do not mention legacy bash scripts"
+
+control:
+  locale: "en"
+  industry: "it_software"

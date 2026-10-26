@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV AI Agent | Architecture &amp; Workflow Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-ui: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      
+      /* Dark Theme (Default) */
+      --bg-base: #090d16;
+      --bg-sidebar: #0f172a;
+      --bg-card: #111a2e;
+      --bg-card-hover: #17233d;
+      --bg-input: #0b1120;
+      --border-subtle: #1e293b;
+      --border-focus: #3b82f6;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --accent-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      --emerald: #10b981;
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
+      
+      --sidebar-width: 350px;
+      --topbar-height: 56px;
+      --shadow-active: 0 0 0 1px #3b82f6, 0 8px 20px -4px rgba(59, 130, 246, 0.3);
+      --toast-bg: #1e293b;
+      --toast-text: #f8fafc;
+    }
+
+    [data-theme="light"] {
+      --bg-base: #f1f5f9;
+      --bg-sidebar: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --bg-input: #f1f5f9;
+      --border-subtle: #e2e8f0;
+      --border-focus: #2563eb;
+      --accent: #2563eb;
+      --accent-glow: rgba(37, 99, 235, 0.2);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #94a3b8;
+      --shadow-active: 0 0 0 1px #2563eb, 0 8px 18px -4px rgba(37, 99, 235, 0.2);
+      --toast-bg: #0f172a;
+      --toast-text: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-ui);
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    #progressLoader {
+      position: fixed;
+      top: 0; left: 0; height: 2px; width: 0%;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa, #f97316);
+      z-index: 1000;
+      transition: width 0.25s ease, opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #progressLoader.loading { opacity: 1; width: 85%; }
+    #progressLoader.done { width: 100%; opacity: 0; }
+
+    aside {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      z-index: 40;
+      transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    aside.collapsed { margin-left: calc(-1 * var(--sidebar-width)); }
+
+    .sidebar-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .brand-row { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: var(--accent-gradient);
+      display: flex; align-items: center; justify-content: center;
+      color: #ffffff; font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+      letter-spacing: -1px; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); flex-shrink: 0;
+    }
+    .brand-title-wrap { display: flex; flex-direction: column; min-width: 0; }
+    .brand-name {
+      font-size: 15px; font-weight: 700; color: var(--text-primary);
+      letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .brand-sub { font-size: 11.5px; color: var(--text-tertiary); font-weight: 500; }
+
+    .status-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+    .pulse-badge {
+      display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono);
+      font-weight: 600; color: var(--emerald); background: rgba(16, 185, 129, 0.1);
+      padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .pulse-dot {
+      width: 6px; height: 6px; border-radius: 50%; background-color: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald); animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .results-count { font-family: var(--font-mono); color: var(--text-tertiary); }
+
+    .search-container { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); }
+    .search-input-wrap { position: relative; display: flex; align-items: center; }
+    .search-icon {
+      position: absolute; left: 11px; width: 15px; height: 15px;
+      color: var(--text-tertiary); pointer-events: none;
+    }
+    .search-input {
+      width: 100%; height: 36px; background: var(--bg-input);
+      border: 1px solid var(--border-subtle); border-radius: 6px;
+      padding: 0 60px 0 34px; color: var(--text-primary);
+      font-family: var(--font-ui); font-size: 12.5px; transition: all 0.15s ease;
+    }
+    .search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .search-shortcut-hint {
+      position: absolute; right: 9px; font-family: var(--font-mono);
+      font-size: 10px; color: var(--text-tertiary); background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle); border-radius: 4px; padding: 2px 5px; pointer-events: none;
+    }
+    .clear-search-btn {
+      position: absolute; right: 10px; background: none; border: none;
+      color: var(--text-tertiary); cursor: pointer; display: none; align-items: center;
+      justify-content: center; padding: 4px; border-radius: 4px;
+    }
+    .clear-search-btn:hover { color: var(--text-primary); }
+
+    .filter-tabs {
+      display: flex; padding: 10px 16px 8px; gap: 6px;
+      border-bottom: 1px solid var(--border-subtle); background: rgba(15, 23, 42, 0.25);
+    }
+    .tab-btn {
+      flex: 1; padding: 6px 4px; font-size: 11.5px; font-weight: 600;
+      color: var(--text-secondary); background: transparent; border: 1px solid transparent;
+      border-radius: 5px; cursor: pointer; text-align: center; white-space: nowrap; transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.04); }
+    .tab-btn.active {
+      color: var(--text-primary); background: var(--bg-card);
+      border-color: var(--border-subtle); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-list {
+      flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .card-item {
+      background: var(--bg-card); border: 1px solid var(--border-subtle);
+      border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: all 0.18s ease;
+      display: flex; flex-direction: column; gap: 6px; position: relative;
+    }
+    .card-item:hover {
+      background: var(--bg-card-hover); border-color: var(--border-focus); transform: translateY(-1px);
+    }
+    .card-item.active {
+      background: var(--bg-card-hover); border-color: var(--accent); box-shadow: var(--shadow-active);
+    }
+    .card-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .card-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+    .type-chip {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 2px 6px; border-radius: 4px; background: rgba(59, 130, 246, 0.1);
+      color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.2); flex-shrink: 0;
+    }
+    .type-chip.workflow { background: rgba(16, 185, 129, 0.1); color: var(--emerald); border-color: rgba(16, 185, 129, 0.2); }
+    .type-chip.sequence { background: rgba(168, 85, 247, 0.1); color: #a855f7; border-color: rgba(168, 85, 247, 0.2); }
+    .type-chip.tree { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-color: rgba(245, 158, 11, 0.2); }
+
+    .card-desc {
+      font-size: 12px; color: var(--text-secondary); line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    .empty-state {
+      padding: 40px 20px; text-align: center; display: none;
+      flex-direction: column; align-items: center; gap: 8px; color: var(--text-tertiary); font-size: 13px;
+    }
+    .sidebar-bottom {
+      padding: 12px 18px; border-top: 1px solid var(--border-subtle);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px; color: var(--text-tertiary);
+    }
+    .sidebar-bottom a { color: var(--text-secondary); text-decoration: none; }
+    .sidebar-bottom a:hover { color: var(--accent); }
+
+    main {
+      flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: var(--bg-base);
+    }
+    .topbar {
+      height: var(--topbar-height); min-height: var(--topbar-height);
+      background: var(--bg-sidebar); border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 18px; gap: 16px; z-index: 30;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .sidebar-toggle-btn {
+      width: 32px; height: 32px; border-radius: 6px; background: var(--bg-card);
+      border: 1px solid var(--border-subtle); color: var(--text-secondary);
+      display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease;
+    }
+    .sidebar-toggle-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--border-focus); }
+    .breadcrumb { display: flex; align-items: center; gap: 7px; font-size: 13px; }
+    .breadcrumb-root { color: var(--text-tertiary); font-weight: 500; }
+    .breadcrumb-sep { color: var(--text-tertiary); font-size: 11px; }
+    .breadcrumb-current { font-weight: 600; color: var(--text-primary); }
+
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+    .action-btn {
+      height: 32px; padding: 0 11px; border-radius: 6px; background: var(--bg-card);
+      border: 1px solid var(--border-subtle); color: var(--text-secondary);
+      font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 6px; cursor: pointer; text-decoration: none; transition: all 0.15s ease;
+    }
+    .action-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--border-focus); }
+    .action-btn svg { width: 14px; height: 14px; stroke-width: 2; }
+    .action-btn.primary { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+    .action-btn.primary:hover { background: #2563eb; border-color: #2563eb; }
+
+    .viewer-stage {
+      flex: 1; height: calc(100vh - var(--topbar-height)); position: relative; background: #000000; display: flex;
+    }
+    iframe { width: 100%; height: 100%; border: none; background: #090d16; }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--toast-bg);
+      color: var(--toast-text); border: 1px solid var(--border-subtle);
+      padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 500;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4); display: flex; align-items: center;
+      gap: 8px; transform: translateY(60px); opacity: 0; pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease; z-index: 2000; font-family: var(--font-mono);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 860px) {
+      aside { position: absolute; box-shadow: 12px 0 35px rgba(0, 0, 0, 0.6); }
+    }
+  </style>
+</head>
+<body>
+  <div id="progressLoader"></div>
+
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-row">
+        <div class="brand-logo">&lt;/&gt;</div>
+        <div class="brand-title-wrap">
+          <div class="brand-name">CV AI Agent</div>
+          <div class="brand-sub">Architecture &amp; Workflow Portal</div>
+        </div>
+      </div>
+      <div class="status-row">
+        <div class="pulse-badge">
+          <div class="pulse-dot"></div>
+          <span id="specBadgeText">Specifications Active</span>
+        </div>
+        <span class="results-count" id="resultsCount">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="search-container">
+      <div class="search-input-wrap">
+        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search diagrams..." autocomplete="off" spellcheck="false">
+        <button class="clear-search-btn" id="clearSearchBtn" title="Clear search">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        <span class="search-shortcut-hint" id="searchHint">Ctrl K</span>
+      </div>
+    </div>
+
+    <div class="filter-tabs" id="filterTabs">
+      <!-- Injected dynamically -->
+    </div>
+
+    <div class="card-list" id="cardList"></div>
+
+    <div class="empty-state" id="emptyState">
+      <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-bottom: 4px; opacity: 0.5;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <div>No matching diagrams found</div>
+      <div style="font-size: 11.5px;">Press Escape to clear filters</div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <span>Zero-CDN &bull; Standalone HTML</span>
+      <a href="https://github.com/tt-a1i/archify" target="_blank">tt-a1i/archify</a>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+          </svg>
+        </button>
+        <nav class="breadcrumb">
+          <span class="breadcrumb-root">Portal</span>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current" id="currentBreadcrumb">Architecture</span>
+        </nav>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="action-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+          <svg id="themeIconSun" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <svg id="themeIconMoon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+          <span id="themeLabel">Theme</span>
+        </button>
+
+        <button class="action-btn" onclick="copyFilePath()" title="Copy Relative File Path">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+          </svg>
+          <span>Copy Path</span>
+        </button>
+
+        <a class="action-btn" id="openTabBtn" href="#" target="_blank" title="Open in Dedicated Tab">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+          <span>Open Tab</span>
+        </a>
+
+        <button class="action-btn primary" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+          </svg>
+          <span>Fullscreen</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="viewer-stage" id="viewerStage">
+      <iframe id="diagramFrame" src="about:blank" title="Diagram Viewer"></iframe>
+    </div>
+  </main>
+
+  <div class="toast" id="toastMessage">Copied path to clipboard</div>
+
+  <script>
+    const DIAGRAMS = [
+  {
+    "id": "cv-modules",
+    "title": "CV AI Agent Codebase Hierarchy Diagram",
+    "category": "architecture",
+    "type": "TREE",
+    "file": "./cv-modules.html",
+    "desc": "Interactive tree specification for CV AI Agent Codebase Hierarchy Diagram."
+  },
+  {
+    "id": "cv-system",
+    "title": "CV AI Agent System Architecture Diagram",
+    "category": "architecture",
+    "type": "ARCHITECTURE",
+    "file": "./cv-system.html",
+    "desc": "Interactive architecture specification for CV AI Agent System Architecture Diagram."
+  },
+  {
+    "id": "cv-sequence",
+    "title": "Real-time SSE Optimization Sequence Diagram",
+    "category": "architecture",
+    "type": "SEQUENCE",
+    "file": "./cv-sequence.html",
+    "desc": "Interactive sequence specification for Real-time SSE Optimization Sequence Diagram."
+  },
+  {
+    "id": "cv-pipeline",
+    "title": "9-Step CV Tailoring Pipeline Diagram",
+    "category": "workflow",
+    "type": "WORKFLOW",
+    "file": "./cv-pipeline.html",
+    "desc": "Interactive workflow specification for 9-Step CV Tailoring Pipeline Diagram."
+  }
+];
+
+    let currentFilter = "all";
+    let activeDiagramId = DIAGRAMS.length > 0 ? DIAGRAMS[0].id : null;
+    let visibleDiagrams = [...DIAGRAMS];
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem("archify_portal_theme") || "dark";
+      applyTheme(savedTheme);
+    }
+
+    function applyTheme(theme) {
+      if (theme === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+        document.getElementById("themeIconSun").style.display = "inline";
+        document.getElementById("themeIconMoon").style.display = "none";
+        document.getElementById("themeLabel").textContent = "Light";
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+        document.getElementById("themeIconSun").style.display = "none";
+        document.getElementById("themeIconMoon").style.display = "inline";
+        document.getElementById("themeLabel").textContent = "Dark";
+      }
+      localStorage.setItem("archify_portal_theme", theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      applyTheme(current === "light" ? "dark" : "light");
+    }
+
+    function setupFilterTabs() {
+      const tabsWrap = document.getElementById("filterTabs");
+      const archCount = DIAGRAMS.filter(d => d.category === "architecture").length;
+      const wfCount = DIAGRAMS.filter(d => d.category === "workflow").length;
+      
+      tabsWrap.innerHTML = `
+        <button class="tab-btn active" data-filter="all" onclick="setFilter('all')">All (${DIAGRAMS.length})</button>
+        <button class="tab-btn" data-filter="architecture" onclick="setFilter('architecture')">Architecture (${archCount})</button>
+        <button class="tab-btn" data-filter="workflow" onclick="setFilter('workflow')">Workflows (${wfCount})</button>
+      `;
+    }
+
+    function renderCards() {
+      const cardList = document.getElementById("cardList");
+      const emptyState = document.getElementById("emptyState");
+      cardList.innerHTML = "";
+
+      if (visibleDiagrams.length === 0) {
+        emptyState.style.display = "flex";
+      } else {
+        emptyState.style.display = "none";
+      }
+
+      visibleDiagrams.forEach((d) => {
+        const item = document.createElement("div");
+        item.className = "card-item" + (d.id === activeDiagramId ? " active" : "");
+        item.setAttribute("data-id", d.id);
+        item.onclick = () => selectDiagram(d.id);
+
+        let chipClass = "type-chip";
+        if (d.type === "WORKFLOW") chipClass += " workflow";
+        else if (d.type === "SEQUENCE") chipClass += " sequence";
+        else if (d.type === "TREE") chipClass += " tree";
+
+        item.innerHTML = `
+          <div class="card-top-row">
+            <span class="card-title">${d.title}</span>
+            <span class="${chipClass}">${d.type}</span>
+          </div>
+          <div class="card-desc">${d.desc}</div>
+        `;
+        cardList.appendChild(item);
+      });
+
+      document.getElementById("resultsCount").textContent = `${visibleDiagrams.length} / ${DIAGRAMS.length}`;
+      document.getElementById("specBadgeText").textContent = `${DIAGRAMS.length} Specifications`;
+    }
+
+    function applyFilterAndSearch() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      
+      visibleDiagrams = DIAGRAMS.filter(d => {
+        const matchesCategory = currentFilter === "all" || d.category === currentFilter;
+        const matchesQuery = !query || 
+          d.title.toLowerCase().includes(query) || 
+          d.desc.toLowerCase().includes(query) || 
+          d.type.toLowerCase().includes(query);
+        return matchesCategory && matchesQuery;
+      });
+
+      renderCards();
+
+      const clearBtn = document.getElementById("clearSearchBtn");
+      const hint = document.getElementById("searchHint");
+      if (query.length > 0) {
+        clearBtn.style.display = "flex";
+        hint.style.display = "none";
+      } else {
+        clearBtn.style.display = "none";
+        hint.style.display = "inline";
+      }
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        if (btn.getAttribute("data-filter") === filter) btn.classList.add("active");
+        else btn.classList.remove("active");
+      });
+      applyFilterAndSearch();
+    }
+
+    function selectDiagram(id, pushHash = true) {
+      const diagram = DIAGRAMS.find(d => d.id === id);
+      if (!diagram) return;
+
+      activeDiagramId = id;
+
+      if (pushHash) {
+        window.location.hash = id;
+      }
+
+      const loader = document.getElementById("progressLoader");
+      loader.classList.remove("done");
+      loader.classList.add("loading");
+
+      const frame = document.getElementById("diagramFrame");
+      frame.src = diagram.file;
+
+      frame.onload = () => {
+        loader.classList.remove("loading");
+        loader.classList.add("done");
+        setTimeout(() => loader.classList.remove("done"), 300);
+      };
+
+      document.getElementById("currentBreadcrumb").textContent = diagram.title;
+      document.getElementById("openTabBtn").href = diagram.file;
+
+      document.querySelectorAll(".card-item").forEach(card => {
+        if (card.getAttribute("data-id") === id) card.classList.add("active");
+        else card.classList.remove("active");
+      });
+
+      const activeEl = document.querySelector(`.card-item[data-id="${id}"]`);
+      if (activeEl) {
+        activeEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+
+    function copyFilePath() {
+      const diagram = DIAGRAMS.find(d => d.id === activeDiagramId);
+      if (!diagram) return;
+
+      navigator.clipboard.writeText(diagram.file).then(() => {
+        showToast(`Copied ${diagram.file} to clipboard`);
+      }).catch(() => {
+        showToast(`Path: ${diagram.file}`);
+      });
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById("toastMessage");
+      toast.textContent = text;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2400);
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("collapsed");
+    }
+
+    function toggleFullscreen() {
+      const stage = document.getElementById("viewerStage");
+      if (!document.fullscreenElement) {
+        stage.requestFullscreen().catch(err => {
+          showToast("Fullscreen request denied: " + err.message);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey && e.key.toLowerCase() === "k") || (e.key === "/" && document.activeElement.tagName !== "INPUT")) {
+        e.preventDefault();
+        const input = document.getElementById("searchInput");
+        input.focus();
+        input.select();
+        return;
+      }
+
+      if (e.ctrlKey && e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        toggleSidebar();
+        return;
+      }
+
+      if (e.key === "Escape") {
+        const input = document.getElementById("searchInput");
+        if (document.activeElement === input) {
+          input.value = "";
+          applyFilterAndSearch();
+          input.blur();
+        }
+        return;
+      }
+
+      if (document.activeElement.tagName !== "INPUT" && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+        e.preventDefault();
+        if (visibleDiagrams.length === 0) return;
+
+        const currentIdx = visibleDiagrams.findIndex(d => d.id === activeDiagramId);
+        let nextIdx = 0;
+        if (e.key === "ArrowDown") {
+          nextIdx = currentIdx < visibleDiagrams.length - 1 ? currentIdx + 1 : 0;
+        } else {
+          nextIdx = currentIdx > 0 ? currentIdx - 1 : visibleDiagrams.length - 1;
+        }
+        selectDiagram(visibleDiagrams[nextIdx].id);
+      }
+    });
+
+    function handleHashRouting() {
+      const hash = window.location.hash.replace("#", "").trim();
+      const match = DIAGRAMS.find(d => d.id === hash);
+      if (match) {
+        selectDiagram(match.id, false);
+      } else if (DIAGRAMS.length > 0) {
+        selectDiagram(DIAGRAMS[0].id, true);
+      }
+    }
+
+    window.addEventListener("hashchange", handleHashRouting);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initTheme();
+      setupFilterTabs();
+
+      const searchInput = document.getElementById("searchInput");
+      searchInput.addEventListener("input", applyFilterAndSearch);
+
+      document.getElementById("clearSearchBtn").addEventListener("click", () => {
+        searchInput.value = "";
+        applyFilterAndSearch();
+        searchInput.focus();
+      });
+
+      renderCards();
+      handleHashRouting();
+    });
+  </script>
+</body>
+</html>

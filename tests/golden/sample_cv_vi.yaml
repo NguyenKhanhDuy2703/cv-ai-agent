@@ -1,0 +1,65 @@
+name: "Nguyễn Văn An"
+position: "Kỹ sư Backend Cấp cao"
+objective: "Kỹ sư phần mềm 5 năm kinh nghiệm chuyên sâu về Python, kiến trúc microservices và hệ thống phân tán chịu tải lớn."
+contact:
+  email: "an.nguyen@example.com"
+  phone: "0901234567"
+  location: "Hà Nội, Việt Nam"
+  linkedin: "https://linkedin.com/in/annguyen"
+  github: "https://github.com/annguyen"
+
+experience:
+  - company: "VNG Cloud"
+    title: "Senior Backend Engineer"
+    start: "2021-03"
+    end: "Hiện tại"
+    location: "Hà Nội"
+    highlights:
+      - "Thiết kế và triển khai cụm microservices xử lý 15.000 requests/s với thời gian phản hồi dưới 50ms"
+      - "Tối ưu hóa cơ sở dữ liệu PostgreSQL và Redis caching giúp giảm 40% chi phí hạ tầng AWS"
+      - "Chủ trì xây dựng pipeline CI/CD tự động hoá kiểm thử và triển khai trên Kubernetes"
+
+  - company: "FPT Software"
+    title: "Backend Developer"
+    start: "2019-06"
+    end: "2021-02"
+    location: "Hà Nội"
+    highlights:
+      - "Phát triển các RESTful API phục vụ hệ sinh thái ngân hàng số với hơn 1 triệu người dùng"
+      - "Tái cấu trúc mã nguồn kế thừa sang kiến trúc Clean Architecture, giảm 50% lỗi hồi quy"
+
+education:
+  - institution: "Đại học Bách Khoa Hà Nội"
+    degree: "Kỹ sư Công nghệ Thông tin"
+    year: "2019"
+    gpa: "3.6/4.0"
+
+projects:
+  - name: "Hệ thống Phân tích Log Tập trung"
+    role: "Tech Lead"
+    start: "2023-01"
+    end: "2023-06"
+    highlights:
+      - "Xây dựng pipeline thu thập log dựa trên Kafka và Elasticsearch xử lý 500GB dữ liệu mỗi ngày"
+      - "Cung cấp dashboard cảnh báo sự cố theo thời gian thực giúp giảm MTTR từ 45 phút xuống 5 phút"
+
+achievements:
+  - "Giải Nhất Hackathon VNG Tech 2022"
+  - "Chứng chỉ AWS Certified Solutions Architect - Associate"
+
+interests:
+  - "Open Source Contribution"
+  - "Hệ thống phân tán"
+
+bonus:
+  notes:
+    - attach_to: "experience[0]"
+      text: "Đạt chuẩn bảo mật ISO 27001 cho hệ thống Cloud API"
+    - text: "Kinh nghiệm thực tế triển khai Terraform cho hạ tầng đa đám mây (Multi-Cloud)"
+  directives:
+    - "Nhấn mạnh Kubernetes và Microservices"
+    - "Không nhắc các công nghệ cũ như PHP, SVN"
+
+control:
+  locale: "vi"
+  industry: "it_software"
