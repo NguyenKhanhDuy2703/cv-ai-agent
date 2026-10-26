@@ -12,6 +12,12 @@ class ConfigurationError(ValueError):
 
 class Settings(BaseSettings):
     ai_port: int = Field(default=8001, alias="AI_PORT")
+    ai_max_body_size: int = Field(
+        default=10 * 1024 * 1024,
+        alias="AI_MAX_BODY_SIZE",
+        gt=0,
+        description="Maximum accepted HTTP request body size in bytes",
+    )
     frontend_origin: str = Field(default="http://localhost:5173", alias="FRONTEND_ORIGIN")
     ai_provider: Literal["mock", "gemini"] = Field(default="mock", alias="AI_PROVIDER")
     ai_api_key: str = Field(default="", alias="AI_API_KEY")

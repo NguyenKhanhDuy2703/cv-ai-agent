@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "CV AI Agent System Architecture Diagram",
+    "subtitle": "Stateless One-Shot Canonical CV Generation with Candidate Evidence Isolation, RAG Guidance, and Deterministic Guards",
+    "output": "archify-architecture/cv-system.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "63488c91d684ee6477cd70a8e26deff9c43ca1c7"
+    },
+    "views": [
+      {
+        "id": "overview",
+        "label": "System Topology",
+        "focus": ["client", "gateway", "auth", "service", "pipeline", "evidence", "core_ai", "guard", "validator"]
+      },
+      {
+        "id": "agent-core",
+        "label": "Agent Core Engine",
+        "focus": ["pipeline", "evidence", "core_ai", "guard", "validator", "knowledge", "llm"]
+      },
+      {
+        "id": "verification",
+        "label": "Guard & Validation",
+        "focus": ["evidence", "core_ai", "guard", "validator"]
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Render Backend",
+      "sublabel": "Worker & DB Owner",
+      "tag": "HTTP / SSE Consumer",
+      "icon": "person",
+      "pos": [40, 50],
+      "size": [115, 60]
+    },
+    {
+      "id": "gateway",
+      "type": "backend",
+      "label": "FastAPI Gateway",
+      "sublabel": "src/api/server.py",
+      "tag": "CORS + 10MB Limit",
+      "icon": "backend",
+      "pos": [245, 50],
+      "size": [135, 60],
+      "sources": [
+        {
+          "path": "src/api/server.py",
+          "line": 15,
+          "end_line": 58,
+          "label": "FastAPI & middleware"
+        }
+      ]
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "Bearer Guard",
+      "sublabel": "src/api/auth.py",
+      "tag": "verify_service_bearer",
+      "icon": "security",
+      "pos": [470, 50],
+      "size": [125, 60],
+      "sources": [
+        {
+          "path": "src/api/auth.py",
+          "line": 9,
+          "end_line": 39,
+          "label": "verify_service_bearer"
+        }
+      ]
+    },
+    {
+      "id": "service",
+      "type": "backend",
+      "label": "Generate Service",
+      "sublabel": "src/api/service.py",
+      "tag": "Async Queue & SSE Stream",
+      "icon": "backend",
+      "pos": [685, 50],
+      "size": [145, 60],
+      "sources": [
+        {
+          "path": "src/api/service.py",
+          "line": 18,
+          "end_line": 86,
+          "label": "GenerateService"
+        }
+      ]
+    },
+    {
+      "id": "validator",
+      "type": "backend",
+      "label": "Canonical Validator",
+      "sublabel": "src/schemas/canonical_validator.py",
+      "tag": "RenderCV JSON Schema",
+      "icon": "security",
+      "pos": [40, 190],
+      "size": [115, 64],
+      "sources": [
+        {
+          "path": "src/schemas/canonical_validator.py",
+          "line": 28,
+          "end_line": 117,
+          "label": "assert_canonical_document"
+        }
+      ]
+    },
+    {
+      "id": "guard",
+      "type": "security",
+      "label": "Deterministic Guard",
+      "sublabel": "src/guard/deterministic_guard.py",
+      "tag": "0% Fabrication Tolerance",
+      "icon": "security",
+      "pos": [245, 190],
+      "size": [135, 64],
+      "sources": [
+        {
+          "path": "src/guard/deterministic_guard.py",
+          "line": 55,
+          "end_line": 251,
+          "label": "DeterministicGuard"
+        }
+      ]
+    },
+    {
+      "id": "evidence",
+      "type": "backend",
+      "label": "Candidate Evidence",
+      "sublabel": "src/pipeline/generation/evidence.py",
+      "tag": "Stable Fact EvidenceStore",
+      "icon": "backend",
+      "pos": [470, 190],
+      "size": [125, 64],
+      "sources": [
+        {
+          "path": "src/pipeline/generation/evidence.py",
+          "line": 9,
+          "end_line": 65,
+          "label": "build_candidate_evidence"
+        },
+        {
+          "path": "src/core/evidence_extractor.py",
+          "line": 8,
+          "end_line": 63,
+          "label": "extract_candidate_evidence"
+        }
+      ]
+    },
+    {
+      "id": "pipeline",
+      "type": "backend",
+      "label": "Generation Pipeline",
+      "sublabel": "src/pipeline/generation/orchestrator.py",
+      "tag": "8-Step One-Shot Orchestrator",
+      "icon": "active",
+      "pos": [685, 190],
+      "size": [145, 64],
+      "sources": [
+        {
+          "path": "src/pipeline/generation/orchestrator.py",
+          "line": 23,
+          "end_line": 156,
+          "label": "CvGenerationPipeline"
+        }
+      ]
+    },
+    {
+      "id": "core_ai",
+      "type": "backend",
+      "label": "Typed Section Writers",
+      "sublabel": "src/pipeline/generation/writers.py",
+      "tag": "Summary, Exp, Project",
+      "icon": "backend",
+      "pos": [245, 330],
+      "size": [135, 64],
+      "sources": [
+        {
+          "path": "src/pipeline/generation/writers.py",
+          "line": 14,
+          "end_line": 77,
+          "label": "Summary & Project Writers"
+        },
+        {
+          "path": "src/core/experience_writer.py",
+          "line": 23,
+          "end_line": 161,
+          "label": "ExperienceWriter"
+        },
+        {
+          "path": "src/core/jd_analyzer.py",
+          "line": 15,
+          "end_line": 120,
+          "label": "JDAnalyzer"
+        }
+      ]
+    },
+    {
+      "id": "knowledge",
+      "type": "database",
+      "label": "Knowledge Retriever",
+      "sublabel": "src/knowledge/static_retriever.py",
+      "tag": "BM25 Static RAG Corpus",
+      "icon": "database",
+      "pos": [470, 330],
+      "size": [125, 60],
+      "sources": [
+        {
+          "path": "src/knowledge/static_retriever.py",
+          "line": 14,
+          "end_line": 106,
+          "label": "StaticKnowledgeRetriever"
+        },
+        {
+          "path": "src/knowledge/corpus.py",
+          "line": 17,
+          "end_line": 275,
+          "label": "KnowledgeCorpus"
+        }
+      ]
+    },
+    {
+      "id": "llm",
+      "type": "cloud",
+      "label": "LLM Provider",
+      "sublabel": "src/llm/gemini_provider.py",
+      "tag": "Gemini 2.0 / Mock",
+      "icon": "cloud",
+      "pos": [685, 330],
+      "size": [145, 60],
+      "sources": [
+        {
+          "path": "src/llm/factory.py",
+          "line": 9,
+          "end_line": 25,
+          "label": "get_llm_provider"
+        },
+        {
+          "path": "src/llm/gemini_provider.py",
+          "line": 18,
+          "end_line": 271,
+          "label": "GeminiProvider"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "API Gateway Subsystem",
+      "wraps": ["gateway", "auth", "service"]
+    },
+    {
+      "kind": "region",
+      "label": "One-Shot Generation Engine",
+      "wraps": ["validator", "guard", "evidence", "pipeline", "core_ai"]
+    },
+    {
+      "kind": "region",
+      "label": "Knowledge & Intelligence Providers",
+      "wraps": ["knowledge", "llm"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-to-gateway",
+      "from": "client",
+      "to": "gateway",
+      "label": "HTTP POST /stream",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gateway-to-auth",
+      "from": "gateway",
+      "to": "auth",
+      "label": "Bearer check",
+      "variant": "security"
+    },
+    {
+      "id": "auth-to-service",
+      "from": "auth",
+      "to": "service",
+      "label": "authorized"
+    },
+    {
+      "id": "service-to-pipeline",
+      "from": "service",
+      "to": "pipeline",
+      "label": "generate(request)"
+    },
+    {
+      "id": "pipeline-to-evidence",
+      "from": "pipeline",
+      "to": "evidence",
+      "label": "isolate facts"
+    },
+    {
+      "id": "pipeline-to-coreai",
+      "from": "pipeline",
+      "to": "core_ai",
+      "label": "draft sections"
+    },
+    {
+      "id": "coreai-to-guard",
+      "from": "core_ai",
+      "to": "guard",
+      "label": "0% check",
+      "variant": "security"
+    },
+    {
+      "id": "guard-to-validator",
+      "from": "guard",
+      "to": "validator",
+      "label": "build doc"
+    },
+    {
+      "id": "validator-to-service",
+      "from": "validator",
+      "to": "service",
+      "label": "validated result"
+    },
+    {
+      "id": "service-to-client",
+      "from": "service",
+      "to": "client",
+      "label": "SSE stream (done)",
+      "variant": "dashed"
+    },
+    {
+      "id": "coreai-to-knowledge",
+      "from": "core_ai",
+      "to": "knowledge",
+      "label": "RAG retrieve",
+      "variant": "dashed"
+    },
+    {
+      "id": "coreai-to-llm",
+      "from": "core_ai",
+      "to": "llm",
+      "label": "structured call"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "API Gateway & SSE Streaming",
+      "items": [
+        "FastAPI gateway enforces 10MB payload limit (AI_MAX_BODY_SIZE) and privacy-safe access logging",
+        "verify_service_bearer validates service-to-service Bearer tokens against AI_SECRET_KEY",
+        "GenerateService streams progress, gap reports, partial section updates, and terminal done/needs_input"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Candidate Evidence Isolation & 0% Fabrication",
+      "items": [
+        "build_candidate_evidence bóc tách Ground-Truth Evidence (con số, tỷ lệ, công nghệ) kèm ID cố định",
+        "DeterministicGuard ép buộc 0% dung sai bịa đặt số liệu và loại bỏ hoàn toàn buzzwords sáo rỗng",
+        "Ungrounded proposals fall back to original candidate facts, guaranteeing valid truthful output"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "RenderCV Canonical Schema Compliance",
+      "items": [
+        "build_canonical_document merges candidate content with Render template design, locale, and settings",
+        "assert_canonical_document validates full JSON structure against the RenderCV canonical schema",
+        "Output is serialized to YAML (cvYaml) and returned alongside structured document in the done event"
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import pytest
-from src.core.evidence_extractor import extract_candidate_evidence, CandidateEvidence, EvidenceStore
+from src.core.evidence_extractor import CandidateEvidence, EvidenceStore
 from src.guard.deterministic_guard import DeterministicGuard
 from src.core.experience_writer import ExperienceWriter, ProposedBullet, ExperienceRewriteProposals
 from src.core.jd_analyzer import JDAnalysisOutput
@@ -43,6 +43,23 @@ def sample_evidence_store():
         ),
     ]
     return EvidenceStore(items=items)
+
+
+@pytest.mark.parametrize(
+    ("proposed", "expected"),
+    [
+        ("Đã phụ trách dự án 12 tầng và tiết kiệm 25% ngân sách.", True),
+        ("Quản lý 30 tầng và tiết kiệm 50% chi phí cho công ty.", False),
+    ],
+)
+def test_vietnamese_metrics_use_the_production_guard(proposed, expected):
+    original = "Phụ trách dự án chung cư 12 tầng, tối ưu chi phí 25% cho công ty."
+    store = EvidenceStore(items=[CandidateEvidence(
+        id="ev-vi-fact", category="highlight", value=original,
+        normalizedValue=original.lower(), sourcePath="profile.experiences[0].facts[0]",
+    )])
+    result = DeterministicGuard.verify(proposed, ["ev-vi-fact"], original, store, "vi")
+    assert result.is_valid is expected
 
 
 def test_guard_valid_proposal_passes(sample_evidence_store):

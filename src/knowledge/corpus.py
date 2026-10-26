@@ -77,7 +77,7 @@ IT_SOFTWARE_KNOWLEDGE_CHUNKS: List[KnowledgeChunk] = [
     KnowledgeChunk(
         id="it-rule-devops-cloud-en",
         title="Cloud & DevOps Experience Writing (English)",
-        content="When tailoring for Cloud/DevOps roles, highlight cluster reliability, CI/CD pipeline acceleration, automated infrastructure as code (Terraform), and container orchestration (Kubernetes, Docker). [TEMPLATE ONLY: Do not invent 99.99% uptime or request counts!]",
+        content="For Cloud/DevOps roles, prioritize verified cluster reliability, CI/CD acceleration, infrastructure as code, and container orchestration facts. Never invent uptime or request counts.",
         category="cloud_devops",
         industry="it_software",
         section="experience",

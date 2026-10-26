@@ -9,12 +9,12 @@ from .routes import router as ai_router
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Max request size: 10MB
-MAX_BODY_SIZE = 10 * 1024 * 1024
+# Maximum request size is configurable via AI_MAX_BODY_SIZE (bytes).
+MAX_BODY_SIZE = settings.ai_max_body_size
 
 app = FastAPI(
     title="cv-ai-agent",
-    description="Autonomous AI Agent Service for Intelligent CV Creation & Optimization",
+    description="Stateless AI service for evidence-grounded canonical CV generation",
     version="1.0.0",
 )
 

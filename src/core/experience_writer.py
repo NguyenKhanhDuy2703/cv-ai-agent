@@ -53,6 +53,7 @@ Strict Rules:
 class ExperienceWriter:
     def __init__(self, provider: Optional[LLMProvider] = None):
         self.provider = provider
+        self.last_error: Optional[str] = None
 
     async def rewrite_entry(
         self,
@@ -64,6 +65,7 @@ class ExperienceWriter:
         instruction: str = "",
     ) -> ExperienceRewriteProposals:
         highlights = entry.get("highlights", []) or []
+        self.last_error = None
         if not highlights:
             return ExperienceRewriteProposals(proposals=[])
 
@@ -94,7 +96,7 @@ Target Skills: {', '.join(jd.required_skills)}
 Target Keywords: {', '.join(jd.keywords)}
 
 Language: {language}
-User Custom Instruction: {instruction or 'Tailor bullets for maximum alignment without fabricating.'}
+User Custom Instruction: {instruction or 'Align bullets with the target role without fabricating.'}
 
 CANDIDATE EVIDENCE (Authoritative facts only):
 {evidence_context}
@@ -122,6 +124,7 @@ Original Highlights:
             return await self.provider.generate_structured(ExperienceRewriteProposals, messages)
         except Exception as exc:
             logger.warning("LLM rewrite failed, falling back to heuristic: %s", exc)
+            self.last_error = str(exc)
             return self._heuristic_fallback(entry, entry_evs, jd, language)
 
     def _heuristic_fallback(

@@ -14,7 +14,12 @@ venv/
 ENV/
 .venv/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
 .coverage
+.coverage.*
+coverage.xml
 htmlcov/
 
 # Dependency directories
@@ -45,4 +50,7 @@ my_tailored_cv.yaml
 *_tailored*.yaml
 generated/
 output/
+
+# Intermediate diagram renders; published diagrams and specs live in archify-architecture/
+.archify/
 

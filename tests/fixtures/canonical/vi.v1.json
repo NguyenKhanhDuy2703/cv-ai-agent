@@ -1,0 +1,422 @@
+{
+  "schemaVersion": 1,
+  "document": {
+    "cv": {
+      "name": "Nguyễn Văn An",
+      "headline": "Kỹ sư phần mềm",
+      "location": "Thành phố Hồ Chí Minh",
+      "email": "john.doe@email.com",
+      "phone": "+1 555 123 4567",
+      "website": "https://rendercv.com/",
+      "photo_url": "https://",
+      "social_networks": [
+        {
+          "id": "sn-1",
+          "network": "LinkedIn",
+          "username": "rendercv"
+        },
+        {
+          "id": "sn-2",
+          "network": "GitHub",
+          "username": "rendercv"
+        }
+      ],
+      "custom_connections": [],
+      "sections": [
+        {
+          "id": "sec-welcome",
+          "title": "Giới thiệu",
+          "entryType": "Text",
+          "entries": [
+            {
+              "id": "ent-welcome-1",
+              "type": "Text",
+              "text": "Kỹ sư **TypeScript**, *NestJS* và [Gemini](https://example.com).\n\nGiữ nguyên thứ tự, dấu tiếng Việt và stable IDs."
+            }
+          ]
+        },
+        {
+          "id": "sec-education",
+          "title": "Education",
+          "entryType": "Education",
+          "entries": [
+            {
+              "id": "ent-edu-1",
+              "type": "Education",
+              "institution": "Princeton University",
+              "area": "Computer Science",
+              "degree": "PhD",
+              "location": "Princeton, NJ",
+              "start_date": "2018-09",
+              "end_date": "2023-05",
+              "summary": "",
+              "highlights": [
+                "Thesis: Efficient Neural Architecture Search for Resource-Constrained Deployment",
+                "Advisor: Prof. Sanjeev Arora",
+                "NSF Graduate Research Fellowship, Siebel Scholar (Class of 2022)"
+              ]
+            },
+            {
+              "id": "ent-edu-2",
+              "type": "Education",
+              "institution": "Boğaziçi University",
+              "area": "Computer Engineering",
+              "degree": "BS",
+              "location": "Istanbul, Türkiye",
+              "start_date": "2014-09",
+              "end_date": "2018-06",
+              "summary": "",
+              "highlights": [
+                "GPA: 3.97/4.00, Valedictorian",
+                "Fulbright Scholarship recipient for Graduate Studies"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sec-experience",
+          "title": "Experience",
+          "entryType": "Experience",
+          "entries": [
+            {
+              "id": "ent-exp-1",
+              "type": "Experience",
+              "company": "Nexus AI",
+              "position": "Co-Founder & CTO",
+              "location": "San Francisco, CA",
+              "start_date": "2023-06",
+              "end_date": "present",
+              "date": "3 years 5 months",
+              "summary": "",
+              "highlights": [
+                "Built foundation model infrastructure serving 2M+ monthly API requests with 99.97% uptime",
+                "Raised $18M Series A led by Sequoia Capital, with participation from a16z and Founders Fund",
+                "Scaled engineering team from 3 to 28 across ML research, platform, and applied AI divisions",
+                "Developed proprietary inference optimization reducing latency by 73% compared to baseline"
+              ]
+            },
+            {
+              "id": "ent-exp-2",
+              "type": "Experience",
+              "company": "NVIDIA Research",
+              "position": "Research Intern",
+              "location": "Santa Clara, CA",
+              "start_date": "2022-05",
+              "end_date": "2022-08",
+              "date": "4 months",
+              "summary": "",
+              "highlights": [
+                "Designed sparse attention mechanism reducing transformer memory footprint by 4.2x",
+                "Co-authored paper accepted at NeurIPS 2022 (spotlight presentation, top 5% of submissions)"
+              ]
+            },
+            {
+              "id": "ent-exp-3",
+              "type": "Experience",
+              "company": "Google DeepMind",
+              "position": "Research Intern",
+              "location": "London, UK",
+              "start_date": "2021-05",
+              "end_date": "2021-08",
+              "date": "4 months",
+              "summary": "",
+              "highlights": [
+                "Developed reinforcement learning algorithms for multi-agent coordination",
+                "Published research at top-tier venues with significant academic impact",
+                "ICML 2022 main conference paper, cited 340+ times within two years",
+                "NeurIPS 2022 workshop paper on emergent communication protocols"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sec-publications",
+          "title": "Publications",
+          "entryType": "Publication",
+          "entries": [
+            {
+              "id": "ent-pub-1",
+              "type": "Publication",
+              "title": "Distributed Multi-Agent Reinforcement Learning with Adaptive Exploration",
+              "authors": [
+                "John Doe",
+                "Jane Smith",
+                "Sanjeev Arora"
+              ],
+              "journal": "Journal of Machine Learning Research (JMLR)",
+              "date": "2023",
+              "doi": "10.1145/3318464.3389700",
+              "url": "https://doi.org/10.1145/3318464.3389700",
+              "summary": "Proposed an efficient decentralized MARL algorithm that achieves linear regret bounds under partial observability."
+            }
+          ]
+        },
+        {
+          "id": "sec-projects",
+          "title": "Projects",
+          "entryType": "Normal",
+          "entries": [
+            {
+              "id": "ent-proj-1",
+              "type": "Normal",
+              "name": "Autonomous Navigation System",
+              "date": "2021 – 2022",
+              "location": "Princeton, NJ",
+              "summary": "Open-source robotics navigation stack built with ROS2 and C++.",
+              "highlights": [
+                "Implemented real-time LiDAR SLAM running at 60 FPS on embedded Jetson Xavier hardware",
+                "Benchmarked against KITTI dataset with 98.4% localization accuracy"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sec-skills",
+          "title": "Skills",
+          "entryType": "One-Line",
+          "entries": [
+            {
+              "id": "ent-skill-1",
+              "type": "One-Line",
+              "label": "Languages",
+              "details": "Python, C++, TypeScript, Rust, SQL, Bash"
+            },
+            {
+              "id": "ent-skill-2",
+              "type": "One-Line",
+              "label": "Machine Learning",
+              "details": "PyTorch, JAX, HuggingFace, TensorRT, vLLM, DeepSpeed"
+            },
+            {
+              "id": "ent-skill-3",
+              "type": "One-Line",
+              "label": "Infrastructure",
+              "details": "Docker, Kubernetes, AWS, Ray, Terraform, Git, CI/CD"
+            }
+          ]
+        },
+        {
+          "id": "sec-honors",
+          "title": "Selected Honors",
+          "entryType": "Bullet",
+          "entries": [
+            {
+              "id": "ent-honor-1",
+              "type": "Bullet",
+              "bullet": "Forbes 30 Under 30 in Science & Technology (2025)"
+            },
+            {
+              "id": "ent-honor-2",
+              "type": "Bullet",
+              "bullet": "Best Paper Award at ICML Multi-Agent Workshop (2022)"
+            },
+            {
+              "id": "ent-honor-3",
+              "type": "Bullet",
+              "bullet": "Gold Medalist, National Mathematics Olympiad (2014)"
+            }
+          ]
+        },
+        {
+          "id": "sec-patents",
+          "title": "Patents",
+          "entryType": "Numbered",
+          "entries": [
+            {
+              "id": "ent-pat-1",
+              "type": "Numbered",
+              "number": 1,
+              "text": "Method and apparatus for low-latency neural network inference caching (US Patent 11,894,201, Issued 2024)"
+            },
+            {
+              "id": "ent-pat-2",
+              "type": "Numbered",
+              "number": 2,
+              "text": "Dynamic attention pruning in transformer architectures for edge deployment (US Patent Application 20230219482)"
+            }
+          ]
+        },
+        {
+          "id": "sec-talks",
+          "title": "Invited Talks",
+          "entryType": "Reversed Numbered",
+          "entries": [
+            {
+              "id": "ent-talk-1",
+              "type": "Reversed Numbered",
+              "number": 3,
+              "text": "Keynote: Scaling Foundation Models in High-Concurrency Production Environments, AI Summit (2025)"
+            },
+            {
+              "id": "ent-talk-2",
+              "type": "Reversed Numbered",
+              "number": 2,
+              "text": "Guest Lecture: Neural Architecture Search in Practice, Stanford CS330 (2024)"
+            },
+            {
+              "id": "ent-talk-3",
+              "type": "Reversed Numbered",
+              "number": 1,
+              "text": "Technical Talk: Multi-Agent Systems in Autonomous Robotics, MIT CSAIL (2023)"
+            }
+          ]
+        }
+      ]
+    },
+    "design": {
+      "theme": "classic",
+      "page": {
+        "size": "a4",
+        "top_margin": "0.7 in",
+        "bottom_margin": "0.7 in",
+        "left_margin": "0.7 in",
+        "right_margin": "0.7 in",
+        "show_footer": true,
+        "show_top_note": true
+      },
+      "colors": {
+        "body": "rgb(0, 0, 0)",
+        "name": "rgb(0, 79, 144)",
+        "headline": "rgb(0, 79, 144)",
+        "connections": "rgb(0, 79, 144)",
+        "section_titles": "rgb(0, 79, 144)",
+        "links": "rgb(0, 79, 144)",
+        "footer": "rgb(128, 128, 128)",
+        "top_note": "rgb(128, 128, 128)"
+      },
+      "typography": {
+        "line_spacing": "0.6 em",
+        "alignment": "left",
+        "date_and_location_alignment": "right"
+      },
+      "font_family": {
+        "body": "Source Sans 3",
+        "name": "Source Sans 3",
+        "headline": "Source Sans 3",
+        "connections": "Source Sans 3",
+        "section_titles": "Source Sans 3"
+      },
+      "font_size": {
+        "body": "10 pt",
+        "name": "30 pt",
+        "headline": "10 pt",
+        "connections": "10 pt",
+        "section_titles": "1.4 em"
+      },
+      "small_caps": {
+        "name": false,
+        "headline": false,
+        "connections": false,
+        "section_titles": false
+      },
+      "bold": {
+        "name": true,
+        "headline": false,
+        "connections": false,
+        "section_titles": true
+      },
+      "links": {
+        "underline": false,
+        "show_external_link_icon": false
+      },
+      "header": {
+        "alignment": "left",
+        "photo_width": "3.5 cm",
+        "photo_position": "left",
+        "photo_space_left": "0.4 cm",
+        "photo_space_right": "0.4 cm",
+        "space_below_name": "0.7 cm",
+        "space_below_headline": "0.7 cm",
+        "space_below_connections": "0.7 cm"
+      },
+      "header_connections": {
+        "phone_number_format": "national",
+        "hyperlink": true,
+        "show_icons": true,
+        "display_urls_instead_of_usernames": false,
+        "separator": "",
+        "space_between_connections": "0.5 cm"
+      },
+      "section_titles": {
+        "style": "full_line",
+        "line_thickness": "0.5 pt",
+        "space_above": "0.5 cm",
+        "space_below": "0.3 cm"
+      },
+      "sections": {
+        "allow_page_break": true,
+        "space_between_regular_entries": "1.2 em",
+        "space_between_text_entries": "0.3 em",
+        "show_time_spans_in": [
+          "Experience"
+        ]
+      },
+      "entries": {
+        "date_and_location_width": "4.15 cm",
+        "side_space": "0.2 cm",
+        "column_spacing": "0.1 cm",
+        "allow_page_break": false,
+        "short_second_row": true,
+        "degree_width": "1 cm"
+      },
+      "entry_summary": {
+        "space_above": "0.2 cm",
+        "space_left": "0 cm"
+      },
+      "entry_highlights": {
+        "bullet": "•",
+        "nested_bullet": "-",
+        "space_left": "0.4 cm",
+        "space_above": "0.2 cm",
+        "space_between_items": "0.15 cm",
+        "space_between_bullet_and_text": "0.2 cm"
+      },
+      "templates": {}
+    },
+    "locale": {
+      "language": "vietnamese",
+      "last_updated": "Cập nhật lần cuối",
+      "present": "hiện tại",
+      "month": "tháng",
+      "months": "tháng",
+      "year": "năm",
+      "years": "năm",
+      "phrases": {
+        "degree_with_area": "DEGREE ngành AREA"
+      },
+      "month_abbreviations": [
+        "Th1",
+        "Th2",
+        "Th3",
+        "Th4",
+        "Th5",
+        "Th6",
+        "Th7",
+        "Th8",
+        "Th9",
+        "Th10",
+        "Th11",
+        "Th12"
+      ],
+      "month_names": [
+        "Tháng 1",
+        "Tháng 2",
+        "Tháng 3",
+        "Tháng 4",
+        "Tháng 5",
+        "Tháng 6",
+        "Tháng 7",
+        "Tháng 8",
+        "Tháng 9",
+        "Tháng 10",
+        "Tháng 11",
+        "Tháng 12"
+      ]
+    },
+    "settings": {
+      "current_date": "2026-09",
+      "bold_keywords": [],
+      "pdf_title": "NAME - CV"
+    }
+  }
+}

@@ -7,7 +7,7 @@ Measures:
 - Non-factual grounding guarantee: Knowledge chunks never inject fabricated metrics
 """
 import pytest
-from src.knowledge.retriever_protocol import RetrievalRequest
+from src.knowledge.retriever_protocol import KnowledgeChunk, RetrievalRequest
 from src.knowledge.static_retriever import StaticKnowledgeRetriever
 from src.guard.deterministic_guard import DeterministicGuard
 from src.core.evidence_extractor import CandidateEvidence, EvidenceStore
@@ -251,6 +251,24 @@ async def test_language_isolation():
     en_res = await retriever.retrieve(en_req, top_k=5)
     for chunk in en_res.chunks:
         assert chunk.language in ("en", "all")
+
+
+@pytest.mark.asyncio
+async def test_retrieval_filters_industry_section_and_language():
+    relevant = KnowledgeChunk(
+        id="relevant", title="Cloud writing guidance", content="Cloud deployment guidance",
+        industry="it_software", section="experience", language="en",
+    )
+    chunks = [
+        relevant,
+        relevant.model_copy(update={"id": "other-industry", "industry": "architecture_construction"}),
+        relevant.model_copy(update={"id": "other-section", "section": "projects"}),
+        relevant.model_copy(update={"id": "other-language", "language": "vi"}),
+    ]
+    result = await StaticKnowledgeRetriever(chunks=chunks).retrieve(RetrievalRequest(
+        query="Cloud deployment", industry="it_software", section="experience", language="en",
+    ))
+    assert [chunk.id for chunk in result.chunks] == ["relevant"]
 
 
 def test_rag_guidance_does_not_permit_hallucination():

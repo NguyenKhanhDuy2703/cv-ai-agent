@@ -1,3 +1,3 @@
-from .anti_hallucination import AntiHallucinationGuard
+from .deterministic_guard import DeterministicGuard, GuardResult
 
-__all__ = ["AntiHallucinationGuard"]
+__all__ = ["DeterministicGuard", "GuardResult"]

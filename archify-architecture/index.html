@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CV AI Agent | Architecture &amp; Workflow Portal</title>
+  <title>CV AI Agent Archify | Architecture &amp; Workflow Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -273,7 +273,7 @@
       <div class="brand-row">
         <div class="brand-logo">&lt;/&gt;</div>
         <div class="brand-title-wrap">
-          <div class="brand-name">CV AI Agent</div>
+          <div class="brand-name">CV AI Agent Archify</div>
           <div class="brand-sub">Architecture &amp; Workflow Portal</div>
         </div>
       </div>
@@ -380,36 +380,44 @@
   <script>
     const DIAGRAMS = [
   {
-    "id": "cv-modules",
-    "title": "CV AI Agent Codebase Hierarchy Diagram",
+    "id": "cv-api",
+    "title": "CV AI Agent - API Subsystem Architecture & Request Flow",
     "category": "architecture",
-    "type": "TREE",
-    "file": "./cv-modules.html",
-    "desc": "Interactive tree specification for CV AI Agent Codebase Hierarchy Diagram."
+    "type": "ARCHITECTURE",
+    "file": "./cv-api.html",
+    "desc": "FastAPI gateway, Bearer authentication guard, route handlers, and TailorService task management."
   },
   {
     "id": "cv-system",
-    "title": "CV AI Agent System Architecture Diagram",
+    "title": "CV AI Agent System Architecture",
     "category": "architecture",
     "type": "ARCHITECTURE",
     "file": "./cv-system.html",
-    "desc": "Interactive architecture specification for CV AI Agent System Architecture Diagram."
-  },
-  {
-    "id": "cv-sequence",
-    "title": "Real-time SSE Optimization Sequence Diagram",
-    "category": "architecture",
-    "type": "SEQUENCE",
-    "file": "./cv-sequence.html",
-    "desc": "Interactive sequence specification for Real-time SSE Optimization Sequence Diagram."
+    "desc": "End-to-end system topology across API gateway, autonomous agent core, deterministic guards, RAG, and LLM."
   },
   {
     "id": "cv-pipeline",
-    "title": "9-Step CV Tailoring Pipeline Diagram",
+    "title": "9-Step CV Tailoring Pipeline",
     "category": "workflow",
     "type": "WORKFLOW",
     "file": "./cv-pipeline.html",
-    "desc": "Interactive workflow specification for 9-Step CV Tailoring Pipeline Diagram."
+    "desc": "Canonical document validation, evidence extraction, JD analysis, STAR rewriter, 0% fabrication guard, and semantic patching."
+  },
+  {
+    "id": "cv-sequence",
+    "title": "Real-time SSE Optimization Sequence",
+    "category": "architecture",
+    "type": "SEQUENCE",
+    "file": "./cv-sequence.html",
+    "desc": "Interactive sequence lifecycle of client requests, Bearer verification, async queue buffering, and Server-Sent Events delivery."
+  },
+  {
+    "id": "cv-modules",
+    "title": "CV AI Agent Codebase Hierarchy",
+    "category": "architecture",
+    "type": "TREE",
+    "file": "./cv-modules.html",
+    "desc": "Complete directory decomposition of active modules in src/ (api, core, guard, pipeline, schemas, knowledge, llm)."
   }
 ];
 

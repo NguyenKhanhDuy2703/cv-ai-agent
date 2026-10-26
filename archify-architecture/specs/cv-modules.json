@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "CV AI Agent Codebase Hierarchy Diagram",
+    "subtitle": "Complete Module & File Hierarchy across API, Core AI, Safety Guards, Schemas, Knowledge, and LLM Providers",
+    "output": ".archify/cv-modules.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "63488c91d684ee6477cd70a8e26deff9c43ca1c7"
+    }
+  },
+  "layout": {
+    "direction": "right"
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "cv-ai-agent",
+      "sublabel": "Autonomous AI Service"
+    },
+    {
+      "id": "src_api",
+      "parent": "root",
+      "label": "src/api",
+      "sublabel": "HTTP Server & Gateway"
+    },
+    {
+      "id": "api_server",
+      "parent": "src_api",
+      "label": "server.py",
+      "sublabel": "FastAPI app, CORS, 10MB limit",
+      "sources": [
+        {
+          "path": "src/api/server.py",
+          "line": 15,
+          "end_line": 57,
+          "label": "server"
+        }
+      ]
+    },
+    {
+      "id": "api_auth",
+      "parent": "src_api",
+      "label": "auth.py",
+      "sublabel": "verify_service_bearer",
+      "sources": [
+        {
+          "path": "src/api/auth.py",
+          "line": 9,
+          "end_line": 39,
+          "label": "auth"
+        }
+      ]
+    },
+    {
+      "id": "api_routes",
+      "parent": "src_api",
+      "label": "routes.py",
+      "sublabel": "POST /tailor & /stream",
+      "sources": [
+        {
+          "path": "src/api/routes.py",
+          "line": 43,
+          "end_line": 85,
+          "label": "routes"
+        }
+      ]
+    },
+    {
+      "id": "api_service",
+      "parent": "src_api",
+      "label": "service.py",
+      "sublabel": "TailorService & SSE Queue",
+      "sources": [
+        {
+          "path": "src/api/service.py",
+          "line": 19,
+          "end_line": 72,
+          "label": "service"
+        }
+      ]
+    },
+    {
+      "id": "src_core",
+      "parent": "root",
+      "label": "src/core",
+      "sublabel": "AI Processing Units"
+    },
+    {
+      "id": "core_evidence",
+      "parent": "src_core",
+      "label": "evidence_extractor.py",
+      "sublabel": "Ground-Truth EvidenceStore",
+      "sources": [
+        {
+          "path": "src/core/evidence_extractor.py",
+          "line": 1,
+          "end_line": 35,
+          "label": "evidence"
+        }
+      ]
+    },
+    {
+      "id": "core_jd",
+      "parent": "src_core",
+      "label": "jd_analyzer.py",
+      "sublabel": "JD profile & keywords",
+      "sources": [
+        {
+          "path": "src/core/jd_analyzer.py",
+          "line": 1,
+          "end_line": 30,
+          "label": "jd"
+        }
+      ]
+    },
+    {
+      "id": "core_writer",
+      "parent": "src_core",
+      "label": "experience_writer.py",
+      "sublabel": "STAR/XYZ Experience Writer",
+      "sources": [
+        {
+          "path": "src/core/experience_writer.py",
+          "line": 1,
+          "end_line": 35,
+          "label": "writer"
+        }
+      ]
+    },
+    {
+      "id": "src_guard",
+      "parent": "root",
+      "label": "src/guard",
+      "sublabel": "Deterministic Safety"
+    },
+    {
+      "id": "guard_det",
+      "parent": "src_guard",
+      "label": "deterministic_guard.py",
+      "sublabel": "0% Metric Tolerance & Fluff Filter",
+      "sources": [
+        {
+          "path": "src/guard/deterministic_guard.py",
+          "line": 55,
+          "end_line": 95,
+          "label": "deterministic_guard"
+        }
+      ]
+    },
+    {
+      "id": "guard_anti",
+      "parent": "src_guard",
+      "label": "anti_hallucination.py",
+      "sublabel": "Semantic Verification",
+      "sources": [
+        {
+          "path": "src/guard/anti_hallucination.py",
+          "line": 1,
+          "end_line": 30,
+          "label": "anti_hallucination"
+        }
+      ]
+    },
+    {
+      "id": "src_pipeline",
+      "parent": "root",
+      "label": "src/pipeline",
+      "sublabel": "Orchestrator Pipeline"
+    },
+    {
+      "id": "pipe_agent",
+      "parent": "src_pipeline",
+      "label": "agent_orchestrator.py",
+      "sublabel": "9-Step Canonical Workflow",
+      "sources": [
+        {
+          "path": "src/pipeline/agent_orchestrator.py",
+          "line": 43,
+          "end_line": 85,
+          "label": "agent_orchestrator"
+        }
+      ]
+    },
+    {
+      "id": "pipe_prompts",
+      "parent": "src_pipeline",
+      "label": "prompts.py",
+      "sublabel": "STAR templates & Few-shots",
+      "sources": [
+        {
+          "path": "src/pipeline/prompts.py",
+          "line": 1,
+          "end_line": 35,
+          "label": "prompts"
+        }
+      ]
+    },
+    {
+      "id": "src_schemas",
+      "parent": "root",
+      "label": "src/schemas",
+      "sublabel": "Contracts & Patching"
+    },
+    {
+      "id": "schema_dto",
+      "parent": "src_schemas",
+      "label": "canonical_dto.py",
+      "sublabel": "CanonicalRequest & SemanticPatch",
+      "sources": [
+        {
+          "path": "src/schemas/canonical_dto.py",
+          "line": 25,
+          "end_line": 63,
+          "label": "dto"
+        }
+      ]
+    },
+    {
+      "id": "schema_val",
+      "parent": "src_schemas",
+      "label": "canonical_validator.py",
+      "sublabel": "validate_canonical_document",
+      "sources": [
+        {
+          "path": "src/schemas/canonical_validator.py",
+          "line": 40,
+          "end_line": 70,
+          "label": "validator"
+        }
+      ]
+    },
+    {
+      "id": "schema_patch",
+      "parent": "src_schemas",
+      "label": "patch_applier.py",
+      "sublabel": "Lock-Aware Patch Applier",
+      "sources": [
+        {
+          "path": "src/schemas/patch_applier.py",
+          "line": 1,
+          "end_line": 40,
+          "label": "patch_applier"
+        }
+      ]
+    },
+    {
+      "id": "src_knowledge",
+      "parent": "root",
+      "label": "src/knowledge",
+      "sublabel": "RAG & Domain Packs"
+    },
+    {
+      "id": "know_retriever",
+      "parent": "src_knowledge",
+      "label": "retriever_protocol.py",
+      "sublabel": "KnowledgeRetriever Protocol",
+      "sources": [
+        {
+          "path": "src/knowledge/retriever_protocol.py",
+          "line": 1,
+          "end_line": 25,
+          "label": "retriever"
+        }
+      ]
+    },
+    {
+      "id": "src_llm",
+      "parent": "root",
+      "label": "src/llm",
+      "sublabel": "LLM Providers"
+    },
+    {
+      "id": "llm_gemini",
+      "parent": "src_llm",
+      "label": "gemini_provider.py",
+      "sublabel": "Google Gemini 2.0 Flash",
+      "sources": [
+        {
+          "path": "src/llm/gemini_provider.py",
+          "line": 1,
+          "end_line": 35,
+          "label": "gemini"
+        }
+      ]
+    },
+    {
+      "id": "llm_mock",
+      "parent": "src_llm",
+      "label": "mock_provider.py",
+      "sublabel": "Deterministic Mock for Tests",
+      "sources": [
+        {
+          "path": "src/llm/mock_provider.py",
+          "line": 1,
+          "end_line": 30,
+          "label": "mock"
+        }
+      ]
+    },
+    {
+      "id": "src_root",
+      "parent": "root",
+      "label": "src/ (Entrypoints)",
+      "sublabel": "CLI, Config & Server"
+    },
+    {
+      "id": "main_py",
+      "parent": "src_root",
+      "label": "main.py",
+      "sublabel": "Uvicorn ASGI runner",
+      "sources": [
+        {
+          "path": "src/main.py",
+          "line": 6,
+          "end_line": 15,
+          "label": "main"
+        }
+      ]
+    },
+    {
+      "id": "config_py",
+      "parent": "src_root",
+      "label": "config.py",
+      "sublabel": "Pydantic BaseSettings",
+      "sources": [
+        {
+          "path": "src/config.py",
+          "line": 13,
+          "end_line": 42,
+          "label": "config"
+        }
+      ]
+    },
+    {
+      "id": "cli_py",
+      "parent": "src_root",
+      "label": "cli.py",
+      "sublabel": "Command-line interface",
+      "sources": [
+        {
+          "path": "src/cli.py",
+          "line": 1,
+          "end_line": 35,
+          "label": "cli"
+        }
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Layered Architecture Separation",
+      "items": [
+        "Tách bạch ranh giới rõ ràng: Tầng Giao tiếp (src/api) -> Tầng Điều phối (src/pipeline) -> Tầng Nghiệp vụ AI (src/core)",
+        "Đảm bảo khả năng mở rộng: Tầng LLM (src/llm) và Tầng Tri thức (src/knowledge) tuân thủ protocol trừu tượng"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Data Contract & Guard Enforcements",
+      "items": [
+        "src/schemas định nghĩa DTO chuẩn CanonicalTailorRequest và SemanticPatch tương thích RenderCV",
+        "src/guard hoạt động độc lập và thực thi kiểm định tất định 0% sai số số liệu"
+      ]
+    }
+  ]
+}

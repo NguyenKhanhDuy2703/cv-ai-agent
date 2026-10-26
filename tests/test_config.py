@@ -15,7 +15,15 @@ def make_settings(env_overrides: dict):
 
     old_env = {}
     # Clear relevant keys
-    for k in ["AI_PORT", "FRONTEND_ORIGIN", "AI_PROVIDER", "AI_API_KEY", "AI_API_URL", "AI_MODEL"]:
+    for k in [
+        "AI_PORT",
+        "AI_MAX_BODY_SIZE",
+        "FRONTEND_ORIGIN",
+        "AI_PROVIDER",
+        "AI_API_KEY",
+        "AI_API_URL",
+        "AI_MODEL",
+    ]:
         old_env[k] = os.environ.pop(k, None)
 
     os.environ.update({k: str(v) for k, v in env_overrides.items()})
@@ -74,4 +82,19 @@ class TestEnvValidation:
         """Default port should be 8001 when not set."""
         s = make_settings({"AI_PROVIDER": "mock"})
         assert s.ai_port == 8001
+
+    def test_default_max_body_size_is_10_mib(self):
+        """Request body limit defaults to 10 MiB when not configured."""
+        s = make_settings({"AI_PROVIDER": "mock"})
+        assert s.ai_max_body_size == 10 * 1024 * 1024
+
+    def test_max_body_size_can_be_overridden(self):
+        """Request body limit can be configured in bytes through the environment."""
+        s = make_settings({"AI_PROVIDER": "mock", "AI_MAX_BODY_SIZE": 5 * 1024 * 1024})
+        assert s.ai_max_body_size == 5 * 1024 * 1024
+
+    def test_max_body_size_must_be_positive(self):
+        """A zero or negative request body limit is invalid configuration."""
+        with pytest.raises(ValidationError):
+            make_settings({"AI_PROVIDER": "mock", "AI_MAX_BODY_SIZE": 0})
 

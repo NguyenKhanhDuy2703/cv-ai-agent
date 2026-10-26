@@ -103,38 +103,3 @@ education:
         cv_yaml = load_cv_input_from_text(sample_yaml)
         assert cv_yaml.name == "Le Thi C"
         assert cv_yaml.position == "Data Analyst"
-
-    def test_api_tailor_with_raw_markdown_payload(self):
-        from unittest.mock import patch
-        from fastapi.testclient import TestClient
-        from src.api.server import app
-        from src.llm.mock_provider import MockProvider
-        from src.schemas.internal import ObjectiveRewriteOutput, ExperienceRewriteOutput, RewriteBullet
-
-        mock_provider = MockProvider()
-        mock_provider.set_response(
-            ObjectiveRewriteOutput,
-            ObjectiveRewriteOutput(
-                objective="Senior Software Engineer with 6 years experience in Python, AWS and microservices.",
-            ),
-        )
-        mock_provider.set_response(
-            ExperienceRewriteOutput,
-            ExperienceRewriteOutput(
-                highlights=[
-                    RewriteBullet(text="Built microservices handling 10k requests/s", source_ids=[]),
-                    RewriteBullet(text="Optimized PostgreSQL queries reducing latency by 40%", source_ids=[]),
-                ]
-            ),
-        )
-
-        client = TestClient(app)
-        with patch("src.pipeline.orchestrator.get_llm_provider", return_value=mock_provider):
-            response = client.post("/v1/ai/tailor/stream", json={"raw_text": SAMPLE_MARKDOWN_CV})
-        assert response.status_code == 200
-        assert "text/event-stream" in response.headers["content-type"]
-        assert "event: done" in response.text
-        assert "Nguyen Van A" in response.text
-
-
-

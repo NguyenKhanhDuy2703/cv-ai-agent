@@ -1,20 +1,10 @@
 import json
-from pathlib import Path
-import pytest
-from src.schemas.canonical_validator import validate_canonical_document, assert_canonical_document, DocumentValidationError
-
-FIXTURES_DIR = Path("d:/Projects/Render/packages/cv-contracts/fixtures")
+from src.schemas.canonical_validator import validate_canonical_document
+from tests.helpers import load_canonical_fixture as load_fixture
 
 
-def load_fixture(name: str):
-    path = FIXTURES_DIR / name
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def test_validate_en_fixture():
-    fixture = load_fixture("en.v1.json")
-    is_valid, errors = validate_canonical_document(fixture["document"])
+def test_validate_en_fixture(canonical_en_document):
+    is_valid, errors = validate_canonical_document(canonical_en_document)
     assert is_valid is True, f"Validation failed with errors: {errors}"
 
 

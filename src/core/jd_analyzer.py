@@ -89,8 +89,10 @@ def fallback_rule_based_jd_analysis(jd_text: str) -> JDAnalysisOutput:
 class JDAnalyzer:
     def __init__(self, provider: Optional[LLMProvider] = None):
         self.provider = provider
+        self.last_error: Optional[str] = None
 
     async def analyze(self, jd_text: str, language: str = "vi") -> JDAnalysisOutput:
+        self.last_error = None
         if not jd_text or not jd_text.strip():
             return JDAnalysisOutput(
                 role_family="General IT",
@@ -114,4 +116,5 @@ class JDAnalyzer:
             return await self.provider.generate_structured(JDAnalysisOutput, messages)
         except Exception as exc:
             logger.warning("LLM JD analysis failed, falling back to rule-based: %s", exc)
+            self.last_error = str(exc)
             return fallback_rule_based_jd_analysis(jd_text)

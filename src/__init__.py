@@ -1,4 +1,4 @@
-"""CV Tailor AI Agent package."""
+"""Stateless CV generation agent package."""
 import sys
 
 # Safeguard against binary load failures (e.g. Windows Application Control blocking orjson.pyd)

@@ -1,3 +1,3 @@
-from .orchestrator import CvTailorPipeline
+from .generation import CvGenerationPipeline
 
-__all__ = ["CvTailorPipeline"]
+__all__ = ["CvGenerationPipeline"]

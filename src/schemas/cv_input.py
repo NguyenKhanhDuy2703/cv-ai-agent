@@ -1,5 +1,5 @@
 """
-CV Input Schema — the structured payload sent to the tailoring pipeline.
+CV Input Schema — the legacy source-file shape supported by CLI parse/validate.
 
 This schema covers the information every CV should have.
 The frontend UI collects these fields through its own wizard/form flow,
@@ -47,10 +47,10 @@ class Education(BaseModel):
 
 class CvInput(BaseModel):
     """
-    Top-level input schema for the CV tailoring pipeline.
+    Top-level source-file schema used by CLI parse/validate.
 
     The frontend UI collects these fields through its wizard flow and
-    sends them as YAML or JSON to POST /v1/tailor.
+    serializes them as YAML or JSON for offline source validation.
     """
 
     # ── Required core fields ─────────────────────────────────────────────────

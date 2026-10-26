@@ -1,14 +1,4 @@
-"""
-Deterministic Anti-Hallucination and Quality Guards.
 
-Enforces:
-1. 0% Numeric/Metric fabrication: every number/percentage/multiplier must exist in candidate evidence.
-2. Company, project and title consistency: no invented companies or titles.
-3. Skill/technology evidence: technologies must be grounded in candidate facts, not fabricated from JD wishes.
-4. Ban terms: rejects empty fluff, cliché buzzwords (rockstar, guru, ninja, synergy, etc.).
-5. Evidence ID validity: non-empty list of valid evidence IDs from EvidenceStore.
-6. Bullet length and format: 20-350 characters, single line, no markdown headers or trailing noise.
-"""
 import re
 from typing import Any, Dict, List, Optional, Set
 from pydantic import BaseModel, Field
@@ -16,27 +6,24 @@ from pydantic import BaseModel, Field
 from ..core.evidence_extractor import METRIC_REGEX, EvidenceStore, COMMON_TECH_TOKENS
 
 BANNED_BUZZWORDS = {
-    # English
     "rockstar", "ninja", "guru", "wizard", "synergy", "hard-working", "punctual",
     "go-getter", "team player", "detail-oriented", "self-starter", "thought leader",
-    # Vietnamese
     "chăm chỉ", "nhiệt huyết", "chịu khó", "ham học hỏi", "hòa đồng", "năng nổ"
 }
 
-# Major tech companies commonly hallucinated in CV tailoring
+
 HALLUCINATED_TECH_COMPANIES = {
     "google", "microsoft", "apple", "amazon", "meta", "facebook", "netflix",
     "openai", "uber", "airbnb", "tesla", "twitter", "bytedance", "oracle",
     "salesforce", "ibm", "spotify", "anthropic"
 }
 
-# Prestigious/executive title patterns commonly hallucinated in bullets
+
 FABRICATED_TITLE_PATTERNS = [
     r"\b(?:as|promoted to|làm|vị trí)\s+(?:senior\s+vice\s+president|vice\s+president|principal\s+architect|chief\s+technology\s+officer|cto|ceo|director|head\s+of\s+engineering|tech\s+lead)\b",
     r"\b(?:senior\s+vice\s+president|vice\s+president|principal\s+architect|chief\s+technology\s+officer|giám\s+đốc\s+kỹ\s+thuật)\b",
 ]
 
-# Certification keywords to guard against fabrication
 CERT_KEYWORDS = [
     "aws certified", "gcp certified", "azure certified", "cka", "ckad",
     "pmp", "cissp", "scrum master", "certified kubernetes administrator",
