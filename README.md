@@ -174,6 +174,7 @@ All fixtures are local synthetic data; no FE, BE or Render checkout is needed.
 - `src/worker.py`: independent worker entrypoint.
 - `src/api/`: job routes, compatibility adapter and health.
 - `src/pipeline/generation/`: generation logic, independent of persistence/HTTP.
+- [Project overview (Vietnamese)](docs/learning/00-project-overview.vi.md)
 - [Learning guide](docs/learning/README.md)
 - [Fixture provenance](tests/fixtures/README.md)
 - [Architecture snapshots](archify-architecture/README.md) (existing published diagrams;
