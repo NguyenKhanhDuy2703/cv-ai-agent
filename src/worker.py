@@ -9,6 +9,7 @@ from .config import settings
 from .jobs.database import Database, configure_event_loop
 from .jobs.repository import JobRepository, LeaseLost
 from .llm.factory import get_llm_provider
+from .llm.operations import JOB_CONTEXT, safe_error_details
 from .pipeline.generation import CvGenerationPipeline
 from .schemas.canonical_validator import assert_canonical_document
 from .schemas.generation import GenerateCvRequest, GenerateCvResult
@@ -18,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def build_pipeline():
-    provider = None if settings.ai_provider == "mock" else get_llm_provider()
-    return CvGenerationPipeline(provider=provider)
+    return CvGenerationPipeline(provider=get_llm_provider())
 
 
 class GenerationWorker:
@@ -51,6 +51,7 @@ class GenerationWorker:
             await self.repository.heartbeat(job.id, job.lease_token)
 
     async def run_one(self, job):
+        context_token = JOB_CONTEXT.set({"jobId": job.id, "requestId": job.request_id, "attempt": str(job.attempt)})
         logger.info("Generation started jobId=%s requestId=%s attempt=%s", job.id, job.request_id, job.attempt)
         generation = asyncio.create_task(self._generate(job))
         heartbeat = asyncio.create_task(self._heartbeat(job))
@@ -74,9 +75,12 @@ class GenerationWorker:
             # pipeline failure. The lease/recovery budget bounds the next attempt.
             logger.warning("Database interruption deferred to lease recovery jobId=%s", job.id)
         except Exception as error:
-            logger.warning("Generation failed jobId=%s attempt=%s errorType=%s", job.id, job.attempt, type(error).__name__)
+            details = safe_error_details(error)
+            logger.error("Generation failed jobId=%s requestId=%s attempt=%s code=%s stage=%s schema=%s errorType=%s location=%s",
+                         job.id, job.request_id, job.attempt, details["code"], details["stage"],
+                         details.get("schema", "unknown"), details["errorType"], details.get("location", "unknown"))
             try:
-                await self.repository.fail(job.id, job.lease_token, "GENERATION_FAILED", "Generation failed")
+                await self.repository.fail(job.id, job.lease_token, details["code"], details["message"], details=details)
             except Exception:
                 logger.warning("Generation finalization deferred to lease recovery jobId=%s", job.id)
         finally:
@@ -89,6 +93,7 @@ class GenerationWorker:
                 pass
             except Exception:
                 logger.warning("Generation lease release deferred jobId=%s", job.id)
+            JOB_CONTEXT.reset(context_token)
 
     async def tick(self):
         await self.repository.maintain()
@@ -122,7 +127,10 @@ class GenerationWorker:
         self.tasks.clear()
 
 
-async def main():
+async def main(pipeline_factory=None):
+    if pipeline_factory is None:
+        settings.validate_generation_runtime()
+        pipeline_factory = build_pipeline
     database = Database(settings.ai_database_url)
     try:
         await database.check_ready()
@@ -133,7 +141,7 @@ async def main():
                 loop.add_signal_handler(sig, stop.set)
             except NotImplementedError:
                 signal.signal(sig, lambda *_: loop.call_soon_threadsafe(stop.set))
-        await GenerationWorker(JobRepository(database, settings)).run(stop)
+        await GenerationWorker(JobRepository(database, settings), pipeline_factory).run(stop)
     finally:
         await database.close()
 

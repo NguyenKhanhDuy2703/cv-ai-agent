@@ -8,14 +8,12 @@ Extracts:
 - High-priority matching keywords
 - Supporting verbatim JD excerpts
 """
-import logging
-import re
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel, Field
 
 from ..llm import LLMProvider
 
-logger = logging.getLogger(__name__)
+from ..llm.operations import generate_at_stage, require_provider
 
 
 class JDAnalysisOutput(BaseModel):
@@ -37,84 +35,17 @@ Analyze the provided Job Description (JD) text and output structured JSON strict
 """
 
 
-def fallback_rule_based_jd_analysis(jd_text: str) -> JDAnalysisOutput:
-    """Heuristic rule-based analyzer when LLM is offline or in mock test mode."""
-    lower = jd_text.lower()
-
-    # Seniority heuristic
-    seniority = "Mid"
-    if any(k in lower for k in ["lead", "architect", "principal", "head of", "director"]):
-        seniority = "Lead"
-    elif any(k in lower for k in ["senior", "sr.", "5+ years", "7+ years"]):
-        seniority = "Senior"
-    elif any(k in lower for k in ["junior", "jr.", "fresher", "intern", "entry"]):
-        seniority = "Junior"
-
-    # Role family heuristic
-    role = "Software Engineering"
-    if any(k in lower for k in ["devops", "sre", "cloud", "infrastructure", "kubernetes"]):
-        role = "DevOps / Infrastructure"
-    elif any(k in lower for k in ["frontend", "react", "vue", "angular", "ui/ux", "web"]):
-        role = "Frontend Engineering"
-    elif any(k in lower for k in ["backend", "api", "database", "microservice", "golang", "java", "python"]):
-        role = "Backend Engineering"
-    elif any(k in lower for k in ["data", "etl", "machine learning", "ai", "spark", "pipeline"]):
-        role = "Data / AI Engineering"
-
-    # Keyword extraction
-    known_skills = [
-        "python", "golang", "java", "typescript", "javascript", "react", "vue",
-        "kubernetes", "docker", "aws", "gcp", "azure", "postgresql", "mysql",
-        "redis", "kafka", "graphql", "rest", "ci/cd", "terraform", "microservices"
-    ]
-    extracted = [s for s in known_skills if s in lower]
-    req_skills = extracted[:6] if extracted else ["Software Development"]
-    pref_skills = extracted[6:10] if len(extracted) > 6 else []
-
-    # Excerpts (first 2-3 non-empty lines)
-    lines = [line.strip() for line in jd_text.splitlines() if len(line.strip()) > 15]
-    excerpts = lines[:3]
-
-    return JDAnalysisOutput(
-        role_family=role,
-        seniority=seniority,
-        required_skills=req_skills,
-        preferred_skills=pref_skills,
-        responsibilities=[line for line in lines[1:4]] or ["Build scalable software systems"],
-        keywords=extracted,
-        supporting_jd_excerpts=excerpts,
-    )
-
-
 class JDAnalyzer:
-    def __init__(self, provider: Optional[LLMProvider] = None):
-        self.provider = provider
-        self.last_error: Optional[str] = None
+    def __init__(self, provider: LLMProvider):
+        self.provider = require_provider(provider)
 
     async def analyze(self, jd_text: str, language: str = "vi") -> JDAnalysisOutput:
-        self.last_error = None
-        if not jd_text or not jd_text.strip():
-            return JDAnalysisOutput(
-                role_family="General IT",
-                seniority="Mid",
-                required_skills=[],
-                preferred_skills=[],
-                responsibilities=[],
-                keywords=[],
-                supporting_jd_excerpts=[],
-            )
-
-        if self.provider is None:
-            return fallback_rule_based_jd_analysis(jd_text)
+        if not jd_text.strip():
+            raise ValueError("A job description is required")
 
         messages = [
             {"role": "system", "content": _JD_SYSTEM_PROMPT},
             {"role": "user", "content": f"Language: {language}\n\nJob Description:\n{jd_text}"},
         ]
 
-        try:
-            return await self.provider.generate_structured(JDAnalysisOutput, messages)
-        except Exception as exc:
-            logger.warning("LLM JD analysis failed, falling back to rule-based: %s", exc)
-            self.last_error = str(exc)
-            return fallback_rule_based_jd_analysis(jd_text)
+        return await generate_at_stage(self.provider, JDAnalysisOutput, messages, "jd_analysis")

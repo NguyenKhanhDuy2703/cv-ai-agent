@@ -6,7 +6,6 @@ Optimizes EXACTLY ONE Experience entry at a time:
 - Calls LLM structured output returning typed bullet proposals
 - Each proposal MUST include evidence_ids
 """
-import logging
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
@@ -14,7 +13,7 @@ from ..llm import LLMProvider
 from .evidence_extractor import EvidenceStore
 from .jd_analyzer import JDAnalysisOutput
 
-logger = logging.getLogger(__name__)
+from ..llm.operations import generate_at_stage, require_provider
 
 
 class ProposedBullet(BaseModel):
@@ -51,9 +50,8 @@ Strict Rules:
 
 
 class ExperienceWriter:
-    def __init__(self, provider: Optional[LLMProvider] = None):
-        self.provider = provider
-        self.last_error: Optional[str] = None
+    def __init__(self, provider: LLMProvider):
+        self.provider = require_provider(provider)
 
     async def rewrite_entry(
         self,
@@ -65,7 +63,6 @@ class ExperienceWriter:
         instruction: str = "",
     ) -> ExperienceRewriteProposals:
         highlights = entry.get("highlights", []) or []
-        self.last_error = None
         if not highlights:
             return ExperienceRewriteProposals(proposals=[])
 
@@ -116,46 +113,6 @@ Original Highlights:
             {"role": "user", "content": user_content},
         ]
 
-        if self.provider is None:
-            # Deterministic fallback when no provider is supplied
-            return self._heuristic_fallback(entry, entry_evs, jd, language)
-
-        try:
-            return await self.provider.generate_structured(ExperienceRewriteProposals, messages)
-        except Exception as exc:
-            logger.warning("LLM rewrite failed, falling back to heuristic: %s", exc)
-            self.last_error = str(exc)
-            return self._heuristic_fallback(entry, entry_evs, jd, language)
-
-    def _heuristic_fallback(
-        self,
-        entry: Dict[str, Any],
-        entry_evs: List[Any],
-        jd: JDAnalysisOutput,
-        language: str,
-    ) -> ExperienceRewriteProposals:
-        proposals = []
-        highlights = entry.get("highlights", []) or []
-
-        # Find any evidence IDs for this entry
-        hl_ev_ids = [ev.id for ev in entry_evs if ev.category in ("highlight", "metric", "technology")]
-
-        for i, hl in enumerate(highlights):
-            # Safe minor enhancement preserving all original numbers
-            target_kw = jd.keywords[0] if jd.keywords else "production systems"
-            if language == "vi":
-                text = f"Tối ưu hóa và vận hành: {hl}"
-            else:
-                text = f"Enhanced and operated: {hl}"
-
-            proposals.append(
-                ProposedBullet(
-                    index=i,
-                    text=text,
-                    evidence_ids=hl_ev_ids[:2] or [f"ev-hl-{i}"],
-                    knowledge_chunk_ids=[],
-                    rationale="Aligned with target JD role using verified candidate evidence",
-                )
-            )
-
-        return ExperienceRewriteProposals(proposals=proposals)
+        return await generate_at_stage(
+            self.provider, ExperienceRewriteProposals, messages, "experience", entry.get("id", ""),
+        )

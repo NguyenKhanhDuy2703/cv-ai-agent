@@ -47,6 +47,8 @@ class JobService:
                 }
                 if not legacy:
                     envelope.update(jobId=job.id, attempt=event.attempt)
+                elif event.type == "error":
+                    envelope["data"] = {"message": event.data["message"]}
                 encoded = json.dumps(envelope, ensure_ascii=False)
                 prefix = "" if legacy else f"id: {event.sequence}\n"
                 yield f"{prefix}event: {event.type}\ndata: {encoded}\n\n"

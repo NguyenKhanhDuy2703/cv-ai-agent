@@ -8,7 +8,7 @@ import pytest
 from src.api.routes import get_repository
 from src.api.server import app
 from src.config import settings
-from src.pipeline.generation import CvGenerationPipeline
+from tests.providers import make_pipeline
 from src.worker import GenerationWorker
 from tests.helpers import request_payload
 
@@ -45,7 +45,7 @@ async def test_http_create_lookup_result_and_replay(api_client, job_repository):
         changed = payload()
         changed["jobDescription"] = "changed"
         assert (await client.post("/v1/ai/generations", json=changed)).status_code == 409
-        await GenerationWorker(job_repository, CvGenerationPipeline).run_one(await job_repository.claim())
+        await GenerationWorker(job_repository, make_pipeline).run_one(await job_repository.claim())
         status = (await client.get(job["statusUrl"])).json()
         assert status["status"] == "COMPLETED" and status["attempt"] == 1
         result = (await client.get(job["resultUrl"])).json()
@@ -91,7 +91,7 @@ async def test_legacy_http_contract_survives_adapter(api_client, job_repository)
 
     old = request_payload()
     await GenerateService(job_repository).create(GenerateCvRequest.model_validate(old))
-    await GenerationWorker(job_repository, CvGenerationPipeline).run_one(await job_repository.claim())
+    await GenerationWorker(job_repository, make_pipeline).run_one(await job_repository.claim())
     async with api_client as client:
         response = await client.post("/v1/ai/generate/stream", json=old)
         assert response.status_code == 200

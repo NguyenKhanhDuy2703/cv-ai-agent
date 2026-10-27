@@ -4,7 +4,7 @@ x-ai: &ai
   build: .
   environment:
     AI_DATABASE_URL: postgresql+psycopg://cv_ai:cv_ai_local@postgres:5432/cv_ai
-    AI_PROVIDER: ${AI_PROVIDER:-mock}
+    AI_PROVIDER: ${AI_PROVIDER:-gemini}
     AI_MODEL: ${AI_MODEL:-}
     AI_API_KEY: ${AI_API_KEY:-}
     AI_SECRET_KEY: ${AI_SECRET_KEY:-}

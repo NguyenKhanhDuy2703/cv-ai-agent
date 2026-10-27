@@ -1,8 +1,9 @@
-import json
-
 import pytest
 
-from src.llm.mock_provider import MockProvider
+from tests.providers import FakeProvider, make_pipeline
+from src.llm import LLMTimeoutError
+from src.llm.operations import GenerationStepError
+from src.schemas.generation import GeneratedSummary
 from src.pipeline.generation import CvGenerationPipeline
 from src.pipeline.generation.evidence import build_candidate_evidence
 from src.pipeline.generation.gaps import detect_gaps
@@ -21,7 +22,7 @@ class FailingRetriever:
 @pytest.mark.asyncio
 async def test_complete_profile_generates_valid_canonical_document_with_stable_ids():
     request = GenerateCvRequest.model_validate(request_payload())
-    pipeline = CvGenerationPipeline()
+    pipeline = make_pipeline()
     first = await pipeline.generate(request)
     second = await pipeline.generate(request)
 
@@ -38,7 +39,7 @@ async def test_required_gaps_return_needs_input_without_generation():
     payload["profile"]["name"] = ""
     payload["profile"]["experiences"] = []
     request = GenerateCvRequest.model_validate(payload)
-    result = await CvGenerationPipeline().generate(request)
+    result = await make_pipeline().generate(request)
 
     assert result.status == "needs_input"
     assert result.document is None
@@ -108,27 +109,27 @@ def test_phone_location_metrics_and_dates_are_recommended_and_skippable():
 async def test_corrected_input_creates_a_new_generation():
     first_payload = request_payload()
     first_payload["profile"]["targetPosition"] = ""
-    first = await CvGenerationPipeline().generate(GenerateCvRequest.model_validate(first_payload))
+    first = await make_pipeline().generate(GenerateCvRequest.model_validate(first_payload))
     assert first.status == "needs_input"
 
-    resumed = await CvGenerationPipeline().generate(GenerateCvRequest.model_validate(request_payload(generationId="generation-2")))
-    repeated = await CvGenerationPipeline().generate(GenerateCvRequest.model_validate(request_payload(generationId="generation-2")))
+    resumed = await make_pipeline().generate(GenerateCvRequest.model_validate(request_payload(generationId="generation-2")))
+    repeated = await make_pipeline().generate(GenerateCvRequest.model_validate(request_payload(generationId="generation-2")))
     assert resumed.document["cv"]["sections"] == repeated.document["cv"]["sections"]
 
 
 @pytest.mark.asyncio
-async def test_writer_failure_returns_partial_and_never_copies_jd_only_fact():
-    result = await CvGenerationPipeline(provider=MockProvider()).generate(
-        GenerateCvRequest.model_validate(request_payload()),
-    )
-    assert result.status == "partial"
-    assert result.report.warnings
-    assert "postgresql" not in json.dumps(result.document["cv"]).lower()
+async def test_writer_failure_is_classified_and_does_not_return_a_fake_cv():
+    provider = FakeProvider(errors={GeneratedSummary: LLMTimeoutError("private provider detail")})
+    with pytest.raises(GenerationStepError) as failure:
+        await CvGenerationPipeline(provider=provider).generate(GenerateCvRequest.model_validate(request_payload()))
+    assert failure.value.stage == "summary"
+    assert failure.value.code == "LLM_TIMEOUT"
+    assert "private provider detail" not in str(failure.value)
 
 
 @pytest.mark.asyncio
 async def test_rag_failure_uses_null_retriever_and_returns_partial():
-    result = await CvGenerationPipeline(retriever=FailingRetriever()).generate(
+    result = await make_pipeline(retriever=FailingRetriever()).generate(
         GenerateCvRequest.model_validate(request_payload()),
     )
     assert result.status == "partial"

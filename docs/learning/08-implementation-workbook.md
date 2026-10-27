@@ -1,7 +1,7 @@
 # 08 — Verification workbook
 
 Run python -m pytest -q for pure generation, evidence, JD, guard, retrieval,
-provider, auth, config, canonical validator and CLI regressions. Fixtures and mock
+provider, auth, config, canonical validator and CLI regressions. Fixtures and explicitly injected test-only
 providers require no Render checkout or live LLM key.
 
 Enable PostgreSQL coverage with AI_TEST_DATABASE_URL pointing to the local,
@@ -15,8 +15,12 @@ retention cascade, and status/result retrieval after fresh database connections.
 Cover SSE replay/heartbeats/order, terminal uniqueness, localized gaps and legacy
 envelope compatibility. Disconnect must leave execution running.
 
-Manual acceptance: run API and worker separately, create a mock job, disconnect,
+Manual acceptance: run API and worker separately, create a job with the configured Gemini provider, disconnect,
 restart a process and retrieve the result by job ID. A hard-killed worker can
 recover after lease expiry; canonical IDs remain stable, generated wording need
 not be identical. PostgreSQL readiness checks schema revision. No tests or
 migrations require changing FE, BE or any Render database.
+
+Test that mock/core runtime selections are rejected, worker credentials are required,
+and failures at JD/summary/experience/projects persist safe error codes/stages rather
+than completed heuristic CVs. Verify both modern error metadata and legacy envelopes.

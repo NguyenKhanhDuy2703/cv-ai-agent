@@ -53,7 +53,7 @@ async def job_repository():
         await database.check_ready()
         async with database.engine.begin() as connection:
             await connection.execute(text("TRUNCATE ai_generation_jobs CASCADE"))
-        config = Settings(_env_file=None, AI_PROVIDER="mock", AI_DATABASE_URL=url,
+        config = Settings(_env_file=None, AI_PROVIDER="gemini", AI_DATABASE_URL=url,
                           AI_SSE_POLL_SECONDS=0.005, AI_HEARTBEAT_SECONDS=0.05,
                           AI_LEASE_SECONDS=1, AI_WORKER_POLL_SECONDS=0.01)
         yield JobRepository(database, config)

@@ -46,8 +46,10 @@ submitting corrected/the same input under a new requestId and, for legacy calls,
 a new generationId.
 
 States: `QUEUED -> RUNNING -> NEEDS_INPUT | COMPLETED | FAILED`.
-Required business gaps produce needs_input before writers run. Writers/RAG retain
-existing truthful partial fallbacks. Only validated CVs produce COMPLETED.
+Required business gaps produce needs_input before writers run. LLM/provider
+failures fail the job with classified diagnostics. Guard rejections and optional
+RAG failures can still produce a truthful partial result using
+candidate facts. Only validated CVs produce COMPLETED.
 
 SSE events: progress (English), gap_report (vi/en), partial_update and one persisted
 terminal event: needs_input, done or error. New SSE adds `id`, jobId and attempt;
@@ -69,6 +71,9 @@ uv sync --locked --extra dev
 ```
 
 Copy `.env.example` to `.env` if needed; preserve existing provider/model/key settings.
+Runtime supports only `AI_PROVIDER=gemini`. Set `AI_API_KEY` and an explicit
+`AI_MODEL`; the worker refuses to start without them. API/CLI do not require LLM
+credentials. There is no runtime fake or offline generation mode.
 Set AI_DATABASE_URL to the AI-owned PostgreSQL database. The CLI and pure pipeline
 can run without this variable. API and worker startup require an up-to-date schema.
 
@@ -113,6 +118,29 @@ cleanup. Status/SSE/result reads settle overdue jobs even with workers offline;
 expired results are hidden by the API even before cleanup. Idempotency
 ends when retention expires. API logs omit request bodies and credentials.
 
+
+## Debug generation failures
+
+Read `GET /v1/ai/generations/{id}` and inspect `error`: `code`, `message`, `stage`,
+`errorType`, `schema`, `location` and, for item writers, `sourceId`. New SSE error
+events include these fields. Legacy stream errors retain `{message}` for compatibility.
+
+Common codes: `LLM_AUTHENTICATION_ERROR` (key/permissions), `LLM_INVALID_MODEL`
+(model/access), `LLM_RATE_LIMIT` (quota), `LLM_NETWORK_ERROR`, `LLM_TIMEOUT`,
+`LLM_UNAVAILABLE`, and `LLM_SCHEMA_ERROR`. Provider retries are bounded; permanent
+errors fail immediately and exhausted provider calls never become heuristic CVs.
+`GENERATION_TIMEOUT` remains the job-wide deadline, distinct from `LLM_TIMEOUT`.
+
+```bash
+docker compose logs --tail 100 worker
+```
+
+Correlate `jobId`/`requestId`/attempt. Logs include the stage, classified cause,
+and source file/line/function, but omit prompts, candidate text, raw responses
+and raw provider exception messages. Retry logs also carry the job/request IDs.
+A missing worker key/model is a startup configuration error; inspect worker logs
+rather than expecting an LLM error event from a worker that never started.
+
 ## Test and CLI
 
 ```bash
@@ -123,6 +151,8 @@ python -m src.cli validate -i cv.yaml
 
 The default suite keeps pure pipeline, evidence, guards, RAG, provider, config,
 auth, canonical and CLI regressions independent of PostgreSQL and a live LLM.
+Providers used by automated tests live only in `tests/` and are explicitly
+injected; they are excluded from the production package and Docker image.
 PostgreSQL tests are explicitly skipped without AI_TEST_DATABASE_URL.
 
 Run real database integration tests in the disposable local database:

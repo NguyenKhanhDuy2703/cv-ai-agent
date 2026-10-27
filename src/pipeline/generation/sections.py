@@ -1,6 +1,6 @@
 """Generate and guard the probabilistic CV sections."""
 
-from typing import Any, Awaitable, Callable, Dict, List, Optional
+from typing import Any, Awaitable, Callable, Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -25,7 +25,7 @@ class GeneratedSections(BaseModel):
 
 
 class SectionGenerator:
-    def __init__(self, provider: Optional[LLMProvider] = None):
+    def __init__(self, provider: LLMProvider):
         self.summary_writer = SummaryWriter(provider)
         self.experience_writer = ExperienceWriter(provider)
         self.project_writer = ProjectWriter(provider)
@@ -42,8 +42,6 @@ class SectionGenerator:
         summary_output = await self.summary_writer.write(
             jd, evidence, knowledge["summary"], request.options.language,
         )
-        if self.summary_writer.last_error:
-            warnings.append("Summary writer failed; candidate facts were used.")
         used_ids = list(summary_output.evidence_ids)
         fact_text = " ".join(item.value for item in evidence.items)
         summary_guard = DeterministicGuard.verify(
@@ -64,10 +62,8 @@ class SectionGenerator:
             proposals = await self.experience_writer.rewrite_entry(
                 entry, jd, evidence, knowledge["experience"], request.options.language,
             )
-            if self.experience_writer.last_error:
-                warnings.append(f"Experience writer failed for {item.id}; original facts were used.")
             accepted = list(item.facts)
-            for proposal in ([] if self.experience_writer.last_error else proposals.proposals):
+            for proposal in proposals.proposals:
                 if proposal.index < 0 or proposal.index >= len(item.facts):
                     continue
                 guard = DeterministicGuard.verify(
@@ -101,8 +97,6 @@ class SectionGenerator:
                 item.id, item.name, item.facts, item.technologies, jd, evidence,
                 knowledge["projects"], request.options.language,
             )
-            if self.project_writer.last_error:
-                warnings.append(f"Project writer failed for {item.id}; original facts were used.")
             accepted: List[str] = []
             original = " ".join(item.facts + item.technologies)
             for text in output.highlights:

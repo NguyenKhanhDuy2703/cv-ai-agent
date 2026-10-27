@@ -3,7 +3,7 @@ from src.core.evidence_extractor import CandidateEvidence, EvidenceStore
 from src.guard.deterministic_guard import DeterministicGuard
 from src.core.experience_writer import ExperienceWriter, ProposedBullet, ExperienceRewriteProposals
 from src.core.jd_analyzer import JDAnalysisOutput
-from src.llm.mock_provider import MockProvider
+from tests.providers import FakeProvider
 
 
 @pytest.fixture
@@ -148,8 +148,8 @@ def test_guard_too_short_rejected(sample_evidence_store):
 
 
 @pytest.mark.asyncio
-async def test_experience_writer_with_mock_provider(sample_evidence_store):
-    mock_p = MockProvider()
+async def test_experience_writer_with_injected_provider(sample_evidence_store):
+    mock_p = FakeProvider()
     expected = ExperienceRewriteProposals(
         proposals=[
             ProposedBullet(

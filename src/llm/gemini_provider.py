@@ -4,7 +4,7 @@ Gemini LLM provider using the modern official google-genai SDK.
 Requires:
   AI_PROVIDER=gemini
   AI_API_KEY=<your Gemini API key>
-  AI_MODEL=gemini-2.0-flash   (or gemini-1.5-flash, gemini-2.5-flash, etc.)
+  AI_MODEL=<an enabled model ID for your account>
 
 Uses Gemini's native structured output (response_mime_type + response_schema)
 so the response is always valid JSON matching the requested Pydantic schema.
@@ -42,6 +42,7 @@ from . import (
     LLMUnavailableError,
     RETRYABLE_LLM_ERRORS,
 )
+from .operations import JOB_CONTEXT
 
 logger = logging.getLogger(__name__)
 
@@ -54,25 +55,18 @@ _RETRY_MIN_WAIT = float(os.getenv("LLM_RETRY_MIN_WAIT", "1.0"))
 _RETRY_MAX_WAIT = float(os.getenv("LLM_RETRY_MAX_WAIT", "8.0"))
 
 
-# Supported standard models for helpful guidance in error messages
-KNOWN_RECOMMENDED_MODELS = (
-    "gemini-flash-latest",
-    "gemini-3.8-flash",
-    "gemini-2.5-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
-)
-
-
 def _log_retry_attempt(retry_state: Any) -> None:
     exc = retry_state.outcome.exception() if retry_state.outcome else None
     attempt = retry_state.attempt_number
     next_wait = getattr(retry_state.next_action, "sleep", 0) if retry_state.next_action else 0
     logger.warning(
-        "Retryable Gemini API error (attempt %d/%d): %s. Retrying in %.1fs...",
+        "Gemini retry jobId=%s requestId=%s jobAttempt=%s providerAttempt=%d/%d errorType=%s waitSeconds=%.1f",
+        JOB_CONTEXT.get().get("jobId", "unknown"),
+        JOB_CONTEXT.get().get("requestId", "unknown"),
+        JOB_CONTEXT.get().get("attempt", "unknown"),
         attempt,
         _MAX_RETRIES,
-        exc,
+        type(exc).__name__,
         next_wait,
     )
 
@@ -99,9 +93,13 @@ class GeminiProvider:
                 "Install it: pip install google-genai"
             ) from exc
 
-        self._api_key = api_key or ""
+        if not api_key or not api_key.strip():
+            raise LLMAuthenticationError("AI_API_KEY is required")
+        if not model or not model.strip():
+            raise LLMInvalidModelError("AI_MODEL is required")
+        self._api_key = api_key
         self._types = types
-        self._model_name = model or "gemini-flash-latest"
+        self._model_name = model
 
         if client is not None:
             self._client = client
@@ -141,11 +139,10 @@ class GeminiProvider:
             msg = self._sanitize(raw_msg)
 
             # 404: Invalid model ID or model unavailable for this tier/API version
-            if code == 404 or status == "NOT_FOUND" or "not found" in msg.lower():
-                recommended = ", ".join(f"'{m}'" for m in KNOWN_RECOMMENDED_MODELS)
+            if code == 404 or status == "NOT_FOUND":
                 return LLMInvalidModelError(
                     f"Gemini model '{self._model_name}' is not found or unavailable (HTTP 404). "
-                    f"Verify AI_MODEL in your environment. Recommended models include: {recommended}. "
+                    "Verify AI_MODEL and the configured account's model access. "
                     f"Details: {msg}"
                 )
 
@@ -153,8 +150,6 @@ class GeminiProvider:
             if (
                 code in (401, 403)
                 or status in ("PERMISSION_DENIED", "UNAUTHENTICATED")
-                or "api key" in msg.lower()
-                or "api_key" in msg.lower()
             ):
                 return LLMAuthenticationError(
                     f"Gemini API authentication failed (HTTP {code}, status '{status}'). "
@@ -166,8 +161,6 @@ class GeminiProvider:
             if (
                 code == 429
                 or status == "RESOURCE_EXHAUSTED"
-                or "quota" in msg.lower()
-                or "rate limit" in msg.lower()
             ):
                 return LLMRateLimitError(
                     f"Gemini API rate limit or quota exceeded (HTTP 429, status '{status}'). "
@@ -178,8 +171,6 @@ class GeminiProvider:
             if (
                 code in (500, 502, 503, 504)
                 or status in ("UNAVAILABLE", "INTERNAL", "DEADLINE_EXCEEDED")
-                or "overloaded" in msg.lower()
-                or "unavailable" in msg.lower()
             ):
                 return LLMUnavailableError(
                     f"Gemini service or model is temporarily unavailable (HTTP {code}, status '{status}'). "
@@ -264,8 +255,7 @@ class GeminiProvider:
                 return schema.model_validate_json(raw_text)
             except (ValidationError, json.JSONDecodeError) as schema_exc:
                 raise LLMSchemaError(
-                    f"Gemini response does not match schema '{schema.__name__}': {schema_exc}\n"
-                    f"Raw response: {raw_text[:300]}"
+                    f"Gemini response does not match schema '{schema.__name__}'."
                 ) from schema_exc
 
         return await _call_with_retry()

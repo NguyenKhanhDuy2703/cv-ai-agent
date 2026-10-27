@@ -11,12 +11,51 @@ from src.jobs.contracts import CreateGenerationRequest
 from src.jobs.database import Database
 from src.jobs.models import GenerationEvent, GenerationJob
 from src.jobs.repository import JobConflict, JobNotFound, LeaseLost
-from src.pipeline.generation import CvGenerationPipeline
+from tests.providers import make_pipeline
 from src.schemas.generation import GenerateCvRequest
 from src.worker import GenerationWorker
 from tests.helpers import request_payload
+from tests.providers import FakeProvider
+from src.pipeline.generation import CvGenerationPipeline
+from src.core.jd_analyzer import JDAnalysisOutput
+from src.core.experience_writer import ExperienceRewriteProposals
+from src.schemas.generation import GeneratedProject, GeneratedSummary
+from src.llm import LLMAuthenticationError, LLMInvalidModelError, LLMSchemaError, LLMTimeoutError
 
 pytestmark = [pytest.mark.postgres, pytest.mark.asyncio]
+
+
+@pytest.mark.parametrize("schema,cause,stage,code", [
+    (JDAnalysisOutput, LLMInvalidModelError, "jd_analysis", "LLM_INVALID_MODEL"),
+    (GeneratedSummary, LLMTimeoutError, "summary", "LLM_TIMEOUT"),
+    (ExperienceRewriteProposals, LLMAuthenticationError, "experience", "LLM_AUTHENTICATION_ERROR"),
+    (GeneratedProject, LLMSchemaError, "projects", "LLM_SCHEMA_ERROR"),
+])
+async def test_provider_failure_persists_classified_diagnostics_and_no_cv(job_repository, caplog, schema, cause, stage, code):
+    from src.api.service import GenerateService
+    from src.jobs.service import JobService
+
+    payload = request_payload()
+    payload["profile"]["projects"] = [{"id": "proj-1", "name": "API Project", "technologies": ["Python"],
+                                        "facts": ["Built Python REST endpoints for an internal project."]}]
+    job = await job_repository.create(payload, legacy=True)
+    provider = FakeProvider(errors={schema: cause("private-provider-key candidate@example.com")})
+    worker = GenerationWorker(job_repository, lambda: CvGenerationPipeline(provider))
+    await worker.run_one(await job_repository.claim())
+    finished = await job_repository.get(job.id)
+    assert finished.status == "FAILED" and finished.result["document"] is None
+    assert finished.error["code"] == code and finished.error["stage"] == stage
+    assert finished.error["schema"] == schema.__name__
+    assert "location" in finished.error
+    assert "private-provider-key" not in json.dumps(finished.error) + caplog.text
+    assert "candidate@example.com" not in json.dumps(finished.error) + caplog.text
+    assert f"stage={stage}" in caplog.text
+    events = await job_repository.events(job.id, 0)
+    assert events[-1].type == "error" and events[-1].data["code"] == code
+    modern = [event async for event in JobService(job_repository).stream(job.id)]
+    assert code in modern[-1]
+    legacy = [event async for event in GenerateService(job_repository).stream(job.id)]
+    assert set(json.loads(legacy[-1].split("data: ", 1)[1])["data"]) == {"message"}
 
 
 def creation_payload(**overrides):
@@ -71,7 +110,7 @@ async def test_expired_lease_recovery_fences_old_worker_and_preserves_ids(job_re
     created = await job_repository.create(creation_payload())
     old = await job_repository.claim()
     request = GenerateCvRequest.model_validate(old.input_snapshot)
-    before = await CvGenerationPipeline().generate(request)
+    before = await make_pipeline().generate(request)
     await expire_lease(job_repository, old.id)
     await job_repository.maintain()
     new = await job_repository.claim()
@@ -81,7 +120,7 @@ async def test_expired_lease_recovery_fences_old_worker_and_preserves_ids(job_re
         await job_repository.append(old.id, old.lease_token, {"type": "progress", "data": {}})
     with pytest.raises(LeaseLost):
         await job_repository.finish(old.id, old.lease_token, before)
-    worker = GenerationWorker(job_repository, CvGenerationPipeline)
+    worker = GenerationWorker(job_repository, make_pipeline)
     await worker.run_one(new)
     finished = await job_repository.get(created.id)
     assert finished.status == "COMPLETED"
@@ -115,7 +154,7 @@ async def test_deadline_and_attempt_exhaustion_persist_one_failure(job_repositor
 async def test_result_status_and_terminal_event_commit_atomically(job_repository):
     created = await job_repository.create(creation_payload())
     claimed = await job_repository.claim()
-    result = await CvGenerationPipeline().generate(GenerateCvRequest.model_validate(claimed.input_snapshot))
+    result = await make_pipeline().generate(GenerateCvRequest.model_validate(claimed.input_snapshot))
     original = job_repository._event
 
     def fail_event(*args, **kwargs):
@@ -141,7 +180,7 @@ async def test_result_status_and_terminal_event_commit_atomically(job_repository
 async def test_result_survives_connection_pool_restart_and_cleanup_cascades(job_repository):
     created = await job_repository.create(creation_payload())
     claimed = await job_repository.claim()
-    await GenerationWorker(job_repository, CvGenerationPipeline).run_one(claimed)
+    await GenerationWorker(job_repository, make_pipeline).run_one(claimed)
     await job_repository.database.close()
     # A fresh pool has no in-memory knowledge of the first worker/API.
     fresh = Database(job_repository.config.ai_database_url)
@@ -181,7 +220,7 @@ async def test_worker_rejects_invalid_document_and_does_not_leak_provider_error(
 
     class InvalidPipeline:
         async def generate(self, request, on_event):
-            result = await CvGenerationPipeline().generate(request)
+            result = await make_pipeline().generate(request)
             result.document = {"cv": {"invented": True}}
             return result
 
@@ -209,7 +248,7 @@ async def test_heartbeat_and_graceful_shutdown_allow_recovery(job_repository):
     await job_repository.maintain()
     claimed = await job_repository.claim()
     assert claimed.id == created.id and claimed.attempt == 2
-    await GenerationWorker(job_repository, CvGenerationPipeline).run_one(claimed)
+    await GenerationWorker(job_repository, make_pipeline).run_one(claimed)
     assert (await job_repository.get(created.id)).status == "COMPLETED"
 
 
@@ -227,5 +266,5 @@ async def test_transient_storage_failure_uses_bounded_recovery(job_repository):
     await job_repository.maintain()
     claimed = await job_repository.claim()
     assert claimed.attempt == 2
-    await GenerationWorker(job_repository, CvGenerationPipeline).run_one(claimed)
+    await GenerationWorker(job_repository, make_pipeline).run_one(claimed)
     assert (await job_repository.get(created.id)).status == "COMPLETED"

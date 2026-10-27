@@ -6,7 +6,7 @@ import pytest
 
 from src.api.service import GenerateService
 from src.jobs.service import JobService
-from src.pipeline.generation import CvGenerationPipeline
+from tests.providers import make_pipeline
 from src.schemas.generation import GenerateCvRequest
 from src.worker import GenerationWorker
 from tests.helpers import request_payload
@@ -17,7 +17,7 @@ pytestmark = [pytest.mark.postgres, pytest.mark.asyncio]
 async def collect(repository, payload):
     service = GenerateService(repository)
     job = await service.create(GenerateCvRequest.model_validate(payload))
-    await GenerationWorker(repository, CvGenerationPipeline).run_one(await repository.claim())
+    await GenerationWorker(repository, make_pipeline).run_one(await repository.claim())
     return [event async for event in service.stream(job.id)]
 
 
@@ -69,7 +69,7 @@ async def test_disconnect_does_not_cancel_job_and_reconnect_replays(job_reposito
             started.set()
             try:
                 await proceed.wait()
-                return await CvGenerationPipeline().generate(request, on_event)
+                return await make_pipeline().generate(request, on_event)
             except asyncio.CancelledError:
                 cancelled.set()
                 raise

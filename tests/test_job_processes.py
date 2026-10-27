@@ -40,7 +40,7 @@ async def test_http_job_survives_hard_worker_and_api_restarts(job_repository, tm
         listener.bind(("127.0.0.1", 0))
         port = listener.getsockname()[1]
     env = {**os.environ, "AI_DATABASE_URL": job_repository.config.ai_database_url,
-           "AI_PROVIDER": "mock", "AI_PORT": str(port), "AI_SECRET_KEY": "process-test-token",
+           "AI_PROVIDER": "gemini", "AI_PORT": str(port), "AI_SECRET_KEY": "process-test-token",
            "AI_LEASE_SECONDS": "0.5", "AI_HEARTBEAT_SECONDS": "0.1",
            "AI_WORKER_POLL_SECONDS": "0.02", "AI_SSE_POLL_SECONDS": "0.01",
            "AI_JOB_TIMEOUT_SECONDS": "30"}
@@ -101,7 +101,7 @@ asyncio.run(main())
 
             # Fresh API/worker processes know only persisted database state.
             start("-m", "src.main")
-            start("-m", "src.worker")
+            start("-m", "tests.worker_process")
             async with httpx.AsyncClient(base_url=base_url, headers=headers, timeout=2) as client:
                 await wait_for(lambda: client.get("/health/ready"), lambda r: r.status_code == 200)
                 finished = await wait_for(lambda: client.get(job["statusUrl"]),
@@ -122,7 +122,7 @@ asyncio.run(main())
 
 async def test_migration_round_trip_on_isolated_database(job_repository):
     await job_repository.database.close()
-    env = {**os.environ, "AI_DATABASE_URL": job_repository.config.ai_database_url, "AI_PROVIDER": "mock"}
+    env = {**os.environ, "AI_DATABASE_URL": job_repository.config.ai_database_url, "AI_PROVIDER": "gemini"}
     for target in ("base", "head"):
         result = await asyncio.to_thread(
             subprocess.run, [sys.executable, "-B", "-m", "alembic", "downgrade" if target == "base" else "upgrade", target],

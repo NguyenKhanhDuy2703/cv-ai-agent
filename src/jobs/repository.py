@@ -155,7 +155,7 @@ class JobRepository:
         job.expires_at = now + timedelta(hours=self.config.ai_retention_hours)
         job.lease_token = None
         job.lease_expires_at = None
-        data = {"message": error["message"] if error else "Generation failed"} if event_type == "error" else job.result
+        data = (error or {"message": "Generation failed"}) if event_type == "error" else job.result
         self._event(session, job, event_type, data, now)
 
     def _failed_result(self, job) -> GenerateCvResult:
@@ -229,9 +229,9 @@ class JobRepository:
             job, now = await self._owned(session, job_id, token)
             self._terminal(session, job, result, now, error)
 
-    async def fail(self, job_id: str, token: str, code: str, message: str) -> None:
+    async def fail(self, job_id: str, token: str, code: str, message: str, *, details: dict[str, str] | None = None) -> None:
         job = await self.get(job_id)
-        await self.finish(job_id, token, self._failed_result(job), {"code": code, "message": message})
+        await self.finish(job_id, token, self._failed_result(job), {**(details or {}), "code": code, "message": message})
 
     async def release(self, job_id: str, token: str) -> None:
         async with self.database.sessions.begin() as session:

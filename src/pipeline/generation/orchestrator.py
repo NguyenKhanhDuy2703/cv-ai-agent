@@ -23,7 +23,7 @@ EventCallback = Callable[[Dict[str, Any]], Awaitable[None]]
 class CvGenerationPipeline:
     def __init__(
         self,
-        provider: Optional[LLMProvider] = None,
+        provider: LLMProvider,
         retriever: Optional[KnowledgeRetriever] = None,
     ):
         self.jd_analyzer = JDAnalyzer(provider)
@@ -66,8 +66,6 @@ class CvGenerationPipeline:
             request.options.language,
         )
         warnings: List[str] = []
-        if self.jd_analyzer.last_error:
-            warnings.append("JD writer failed; deterministic JD analysis was used.")
 
         await progress("rag")
         knowledge_by_section: Dict[str, List[Dict[str, Any]]] = {}
