@@ -3,14 +3,14 @@
   "diagram_type": "tree",
   "meta": {
     "title": "CV AI Agent Codebase Hierarchy Diagram",
-    "subtitle": "Complete Module & File Hierarchy across API, Generation Pipeline, Core AI, Safety Guards, Schemas, Knowledge, and LLM Providers",
+    "subtitle": "Complete Module & File Hierarchy across API, Durable Jobs, Worker, Pipeline, Safety Guards, Schemas, Knowledge, and LLM Providers",
     "output": "archify-architecture/cv-modules.html",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
+      "revision": "feabee2dc795dd2dd0dd678b5d5707408c9efac5"
     }
   },
   "layout": {
@@ -32,12 +32,12 @@
       "id": "api_server",
       "parent": "src_api",
       "label": "server.py",
-      "sublabel": "CORS & 10MB Body Limit",
+      "sublabel": "CORS, 10MB, Lifespan",
       "sources": [
         {
           "path": "src/api/server.py",
           "line": 15,
-          "end_line": 80,
+          "end_line": 114,
           "label": "server"
         }
       ]
@@ -60,12 +60,12 @@
       "id": "api_routes",
       "parent": "src_api",
       "label": "routes.py",
-      "sublabel": "POST /generate/stream",
+      "sublabel": "POST 202 & GET /events",
       "sources": [
         {
           "path": "src/api/routes.py",
-          "line": 17,
-          "end_line": 34,
+          "line": 15,
+          "end_line": 71,
           "label": "routes"
         }
       ]
@@ -74,12 +74,88 @@
       "id": "api_service",
       "parent": "src_api",
       "label": "service.py",
-      "sublabel": "GenerateService & SSE",
+      "sublabel": "GenerateService adapter",
       "sources": [
         {
           "path": "src/api/service.py",
-          "line": 18,
-          "end_line": 86,
+          "line": 1,
+          "end_line": 17,
+          "label": "service"
+        }
+      ]
+    },
+    {
+      "id": "src_jobs",
+      "parent": "root",
+      "label": "src/jobs",
+      "sublabel": "Durable Job Store"
+    },
+    {
+      "id": "jobs_contracts",
+      "parent": "src_jobs",
+      "label": "contracts.py",
+      "sublabel": "CreateGeneration & Views",
+      "sources": [
+        {
+          "path": "src/jobs/contracts.py",
+          "line": 1,
+          "end_line": 51,
+          "label": "contracts"
+        }
+      ]
+    },
+    {
+      "id": "jobs_database",
+      "parent": "src_jobs",
+      "label": "database.py",
+      "sublabel": "Engine & Event Loops",
+      "sources": [
+        {
+          "path": "src/jobs/database.py",
+          "line": 1,
+          "end_line": 44,
+          "label": "database"
+        }
+      ]
+    },
+    {
+      "id": "jobs_models",
+      "parent": "src_jobs",
+      "label": "models.py",
+      "sublabel": "SQLAlchemy Job Tables",
+      "sources": [
+        {
+          "path": "src/jobs/models.py",
+          "line": 1,
+          "end_line": 57,
+          "label": "models"
+        }
+      ]
+    },
+    {
+      "id": "jobs_repo",
+      "parent": "src_jobs",
+      "label": "repository.py",
+      "sublabel": "SKIP LOCKED & Leases",
+      "sources": [
+        {
+          "path": "src/jobs/repository.py",
+          "line": 14,
+          "end_line": 240,
+          "label": "repository"
+        }
+      ]
+    },
+    {
+      "id": "jobs_service",
+      "parent": "src_jobs",
+      "label": "service.py",
+      "sublabel": "JobService & Cursors",
+      "sources": [
+        {
+          "path": "src/jobs/service.py",
+          "line": 1,
+          "end_line": 62,
           "label": "service"
         }
       ]
@@ -132,8 +208,8 @@
       "sources": [
         {
           "path": "src/core/jd_analyzer.py",
-          "line": 15,
-          "end_line": 120,
+          "line": 23,
+          "end_line": 51,
           "label": "jd"
         }
       ]
@@ -146,8 +222,8 @@
       "sources": [
         {
           "path": "src/core/experience_writer.py",
-          "line": 23,
-          "end_line": 161,
+          "line": 48,
+          "end_line": 118,
           "label": "writer"
         }
       ]
@@ -248,8 +324,8 @@
       "sources": [
         {
           "path": "src/llm/factory.py",
-          "line": 9,
-          "end_line": 25,
+          "line": 8,
+          "end_line": 22,
           "label": "factory"
         }
       ]
@@ -263,22 +339,22 @@
         {
           "path": "src/llm/gemini_provider.py",
           "line": 18,
-          "end_line": 271,
+          "end_line": 261,
           "label": "gemini"
         }
       ]
     },
     {
-      "id": "llm_mock",
+      "id": "llm_operations",
       "parent": "src_llm",
-      "label": "mock_provider.py",
-      "sublabel": "Deterministic Test Mock",
+      "label": "operations.py",
+      "sublabel": "JOB_CONTEXT & Diagnostics",
       "sources": [
         {
-          "path": "src/llm/mock_provider.py",
-          "line": 10,
-          "end_line": 63,
-          "label": "mock"
+          "path": "src/llm/operations.py",
+          "line": 1,
+          "end_line": 69,
+          "label": "operations"
         }
       ]
     },
@@ -297,7 +373,7 @@
         {
           "path": "src/pipeline/generation/orchestrator.py",
           "line": 23,
-          "end_line": 156,
+          "end_line": 154,
           "label": "orchestrator"
         }
       ]
@@ -367,7 +443,7 @@
         {
           "path": "src/pipeline/generation/sections.py",
           "line": 27,
-          "end_line": 139,
+          "end_line": 133,
           "label": "sections"
         }
       ]
@@ -381,7 +457,7 @@
         {
           "path": "src/pipeline/generation/writers.py",
           "line": 14,
-          "end_line": 77,
+          "end_line": 56,
           "label": "writers"
         }
       ]
@@ -486,7 +562,21 @@
       "id": "src_root",
       "parent": "root",
       "label": "src/ (Entrypoints)",
-      "sublabel": "CLI, Config & Server"
+      "sublabel": "CLI, Worker & Server"
+    },
+    {
+      "id": "worker_py",
+      "parent": "src_root",
+      "label": "worker.py",
+      "sublabel": "Durable Worker Process",
+      "sources": [
+        {
+          "path": "src/worker.py",
+          "line": 25,
+          "end_line": 147,
+          "label": "worker"
+        }
+      ]
     },
     {
       "id": "main_py",
@@ -497,7 +587,7 @@
         {
           "path": "src/main.py",
           "line": 6,
-          "end_line": 18,
+          "end_line": 23,
           "label": "main"
         }
       ]
@@ -510,8 +600,8 @@
       "sources": [
         {
           "path": "src/config.py",
-          "line": 14,
-          "end_line": 49,
+          "line": 9,
+          "end_line": 53,
           "label": "config"
         }
       ]
@@ -536,7 +626,7 @@
       "dot": "cyan",
       "title": "Layered Architecture Separation",
       "items": [
-        "Tách bạch ranh giới rõ ràng: Tầng Giao tiếp (src/api) -> Tầng Điều phối (src/pipeline/generation) -> Tầng Nghiệp vụ AI (src/core)",
+        "Tách bạch ranh giới rõ ràng: Tầng Giao tiếp (src/api) -> Tầng Lưu trữ & Hàng đợi (src/jobs) -> Tầng Worker (src/worker.py) -> Tầng Điều phối (src/pipeline/generation) -> Tầng Nghiệp vụ AI (src/core)",
         "Đảm bảo khả năng mở rộng: Tầng LLM (src/llm) và Tầng Tri thức (src/knowledge) tuân thủ protocol trừu tượng"
       ]
     },
@@ -544,7 +634,7 @@
       "dot": "emerald",
       "title": "Data Contract & Guard Enforcements",
       "items": [
-        "src/schemas định nghĩa DTO chuẩn GenerateCvRequest và GenerateCvResult tương thích RenderCV canonical schema",
+        "src/schemas & src/jobs định nghĩa DTO chuẩn GenerateCvRequest, JobView và tương thích RenderCV canonical schema",
         "src/guard hoạt động độc lập và thực thi kiểm định tất định 0% sai số số liệu đối chiếu EvidenceStore"
       ]
     }

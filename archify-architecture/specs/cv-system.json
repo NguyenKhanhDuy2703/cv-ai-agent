@@ -3,25 +3,25 @@
   "diagram_type": "architecture",
   "meta": {
     "title": "CV AI Agent System Architecture Diagram",
-    "subtitle": "Stateless One-Shot Canonical CV Generation with Candidate Evidence Isolation, RAG Guidance, and Deterministic Guards",
+    "subtitle": "Durable Job Execution with PostgreSQL Persistence, Independent Worker, Candidate Evidence Isolation, and Deterministic Guards",
     "output": "archify-architecture/cv-system.html",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
+      "revision": "feabee2dc795dd2dd0dd678b5d5707408c9efac5"
     },
     "views": [
       {
         "id": "overview",
         "label": "System Topology",
-        "focus": ["client", "gateway", "auth", "service", "pipeline", "evidence", "core_ai", "guard", "validator"]
+        "focus": ["client", "gateway", "auth", "job_store", "worker", "pipeline", "evidence", "core_ai", "guard", "validator"]
       },
       {
-        "id": "agent-core",
-        "label": "Agent Core Engine",
-        "focus": ["pipeline", "evidence", "core_ai", "guard", "validator", "knowledge", "llm"]
+        "id": "durable-execution",
+        "label": "Durable Worker & Store",
+        "focus": ["gateway", "job_store", "worker", "pipeline"]
       },
       {
         "id": "verification",
@@ -35,7 +35,7 @@
       "id": "client",
       "type": "external",
       "label": "Render Backend",
-      "sublabel": "Worker & DB Owner",
+      "sublabel": "Consumer Service",
       "tag": "HTTP / SSE Consumer",
       "icon": "person",
       "pos": [40, 50],
@@ -44,18 +44,24 @@
     {
       "id": "gateway",
       "type": "backend",
-      "label": "FastAPI Gateway",
-      "sublabel": "src/api/server.py",
-      "tag": "CORS + 10MB Limit",
+      "label": "FastAPI Server",
+      "sublabel": "server.py & routes.py",
+      "tag": "POST 202 & Replayable SSE",
       "icon": "backend",
-      "pos": [260, 50],
+      "pos": [270, 50],
       "size": [140, 60],
       "sources": [
         {
           "path": "src/api/server.py",
           "line": 15,
-          "end_line": 58,
-          "label": "FastAPI & middleware"
+          "end_line": 114,
+          "label": "FastAPI server"
+        },
+        {
+          "path": "src/api/routes.py",
+          "line": 29,
+          "end_line": 71,
+          "label": "job routes"
         }
       ]
     },
@@ -78,97 +84,37 @@
       ]
     },
     {
-      "id": "service",
-      "type": "backend",
-      "label": "Generate Service",
-      "sublabel": "src/api/service.py",
-      "tag": "Async Queue & SSE",
-      "icon": "backend",
-      "pos": [720, 50],
-      "size": [150, 60],
+      "id": "job_store",
+      "type": "database",
+      "label": "PostgreSQL Store",
+      "sublabel": "jobs/repository.py",
+      "tag": "Durable Jobs & Events",
+      "icon": "database",
+      "pos": [690, 50],
+      "size": [140, 60],
       "sources": [
         {
-          "path": "src/api/service.py",
-          "line": 18,
-          "end_line": 86,
-          "label": "GenerateService"
-        }
-      ]
-    },
-    {
-      "id": "validator",
-      "type": "backend",
-      "label": "Canonical Validator",
-      "sublabel": "canonical_validator.py",
-      "tag": "RenderCV JSON Schema",
-      "icon": "security",
-      "pos": [40, 190],
-      "size": [140, 64],
-      "sources": [
-        {
-          "path": "src/schemas/canonical_validator.py",
-          "line": 28,
-          "end_line": 117,
-          "label": "assert_canonical_document"
-        }
-      ]
-    },
-    {
-      "id": "guard",
-      "type": "security",
-      "label": "Deterministic Guard",
-      "sublabel": "deterministic_guard.py",
-      "tag": "0% Fabrication Tolerance",
-      "icon": "security",
-      "pos": [210, 190],
-      "size": [140, 64],
-      "sources": [
-        {
-          "path": "src/guard/deterministic_guard.py",
-          "line": 55,
-          "end_line": 251,
-          "label": "DeterministicGuard"
-        }
-      ]
-    },
-    {
-      "id": "core_ai",
-      "type": "backend",
-      "label": "Typed Writers",
-      "sublabel": "pipeline/writers.py",
-      "tag": "Summary, Exp, Project",
-      "icon": "backend",
-      "pos": [380, 190],
-      "size": [140, 64],
-      "sources": [
-        {
-          "path": "src/pipeline/generation/writers.py",
+          "path": "src/jobs/repository.py",
           "line": 14,
-          "end_line": 77,
-          "label": "Summary & Project Writers"
+          "end_line": 240,
+          "label": "JobRepository"
         },
         {
-          "path": "src/core/experience_writer.py",
-          "line": 23,
-          "end_line": 161,
-          "label": "ExperienceWriter"
-        },
-        {
-          "path": "src/core/jd_analyzer.py",
-          "line": 15,
-          "end_line": 120,
-          "label": "JDAnalyzer"
+          "path": "src/jobs/database.py",
+          "line": 10,
+          "end_line": 44,
+          "label": "Database Engine"
         }
       ]
     },
     {
       "id": "evidence",
       "type": "backend",
-      "label": "Candidate Evidence",
-      "sublabel": "generation/evidence.py",
-      "tag": "Stable Fact EvidenceStore",
+      "label": "Evidence Store",
+      "sublabel": "evidence.py",
+      "tag": "Ground-Truth Store",
       "icon": "backend",
-      "pos": [550, 190],
+      "pos": [270, 190],
       "size": [140, 64],
       "sources": [
         {
@@ -189,17 +135,107 @@
       "id": "pipeline",
       "type": "backend",
       "label": "Generation Pipeline",
-      "sublabel": "generation/orchestrator.py",
-      "tag": "8-Step Orchestrator",
+      "sublabel": "orchestrator.py",
+      "tag": "8-Step Core Engine",
       "icon": "active",
-      "pos": [720, 190],
-      "size": [150, 64],
+      "pos": [480, 190],
+      "size": [140, 64],
       "sources": [
         {
           "path": "src/pipeline/generation/orchestrator.py",
           "line": 23,
-          "end_line": 156,
+          "end_line": 154,
           "label": "CvGenerationPipeline"
+        }
+      ]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Generation Worker",
+      "sublabel": "src/worker.py",
+      "tag": "SKIP LOCKED Claims",
+      "icon": "backend",
+      "pos": [690, 190],
+      "size": [140, 64],
+      "sources": [
+        {
+          "path": "src/worker.py",
+          "line": 24,
+          "end_line": 140,
+          "label": "GenerationWorker"
+        },
+        {
+          "path": "src/llm/operations.py",
+          "line": 11,
+          "end_line": 56,
+          "label": "JOB_CONTEXT & safe_error_details"
+        }
+      ]
+    },
+    {
+      "id": "core_ai",
+      "type": "backend",
+      "label": "Typed Writers",
+      "sublabel": "writers.py",
+      "tag": "Summary, Exp, Project",
+      "icon": "backend",
+      "pos": [270, 330],
+      "size": [140, 64],
+      "sources": [
+        {
+          "path": "src/pipeline/generation/writers.py",
+          "line": 14,
+          "end_line": 56,
+          "label": "Summary & Project Writers"
+        },
+        {
+          "path": "src/core/experience_writer.py",
+          "line": 48,
+          "end_line": 118,
+          "label": "ExperienceWriter"
+        },
+        {
+          "path": "src/core/jd_analyzer.py",
+          "line": 23,
+          "end_line": 51,
+          "label": "JDAnalyzer"
+        }
+      ]
+    },
+    {
+      "id": "guard",
+      "type": "security",
+      "label": "Fact Guard",
+      "sublabel": "guard.py",
+      "tag": "0% Fabrication Tolerance",
+      "icon": "security",
+      "pos": [480, 330],
+      "size": [130, 64],
+      "sources": [
+        {
+          "path": "src/guard/deterministic_guard.py",
+          "line": 55,
+          "end_line": 251,
+          "label": "DeterministicGuard"
+        }
+      ]
+    },
+    {
+      "id": "validator",
+      "type": "security",
+      "label": "CV Validator",
+      "sublabel": "validator.py",
+      "tag": "RenderCV JSON Schema",
+      "icon": "security",
+      "pos": [690, 330],
+      "size": [140, 64],
+      "sources": [
+        {
+          "path": "src/schemas/canonical_validator.py",
+          "line": 28,
+          "end_line": 117,
+          "label": "assert_canonical_document"
         }
       ]
     },
@@ -210,7 +246,7 @@
       "sublabel": "static_retriever.py",
       "tag": "BM25 Static RAG Corpus",
       "icon": "database",
-      "pos": [380, 330],
+      "pos": [270, 470],
       "size": [140, 60],
       "sources": [
         {
@@ -230,24 +266,30 @@
     {
       "id": "llm",
       "type": "cloud",
-      "label": "LLM Provider",
+      "label": "Gemini Provider",
       "sublabel": "gemini_provider.py",
-      "tag": "Gemini 2.0 / Mock",
+      "tag": "Live Gemini 2.0 / 2.5",
       "icon": "cloud",
-      "pos": [550, 330],
-      "size": [140, 60],
+      "pos": [480, 470],
+      "size": [130, 60],
       "sources": [
         {
           "path": "src/llm/factory.py",
-          "line": 9,
-          "end_line": 25,
+          "line": 8,
+          "end_line": 22,
           "label": "get_llm_provider"
         },
         {
           "path": "src/llm/gemini_provider.py",
           "line": 18,
-          "end_line": 271,
+          "end_line": 261,
           "label": "GeminiProvider"
+        },
+        {
+          "path": "src/llm/operations.py",
+          "line": 1,
+          "end_line": 69,
+          "label": "operations"
         }
       ]
     }
@@ -255,13 +297,18 @@
   "boundaries": [
     {
       "kind": "region",
-      "label": "API Gateway Subsystem",
-      "wraps": ["gateway", "auth", "service"]
+      "label": "API & Storage Subsystem",
+      "wraps": ["gateway", "auth", "job_store"]
     },
     {
       "kind": "region",
-      "label": "One-Shot Generation Engine",
-      "wraps": ["validator", "guard", "core_ai", "evidence", "pipeline"]
+      "label": "Durable Worker & Pipeline",
+      "wraps": ["evidence", "pipeline", "worker"]
+    },
+    {
+      "kind": "region",
+      "label": "Verification & Safety Engine",
+      "wraps": ["core_ai", "guard", "validator"]
     },
     {
       "kind": "region",
@@ -274,7 +321,7 @@
       "id": "client-to-gateway",
       "from": "client",
       "to": "gateway",
-      "label": "HTTP POST /stream",
+      "label": "POST /v1/ai/generations",
       "variant": "emphasis"
     },
     {
@@ -285,14 +332,22 @@
       "variant": "security"
     },
     {
-      "id": "auth-to-service",
+      "id": "auth-to-store",
       "from": "auth",
-      "to": "service",
-      "label": "authorized"
+      "to": "job_store",
+      "label": "persist QUEUED",
+      "variant": "emphasis"
     },
     {
-      "id": "service-to-pipeline",
-      "from": "service",
+      "id": "store-to-worker",
+      "from": "job_store",
+      "to": "worker",
+      "label": "SKIP LOCKED claim",
+      "variant": "emphasis"
+    },
+    {
+      "id": "worker-to-pipeline",
+      "from": "worker",
       "to": "pipeline",
       "label": "generate(request)"
     },
@@ -322,16 +377,30 @@
       "label": "build doc"
     },
     {
-      "id": "validator-to-service",
+      "id": "validator-to-worker",
       "from": "validator",
-      "to": "service",
-      "label": "validated result"
+      "to": "worker",
+      "label": "valid doc & yaml"
     },
     {
-      "id": "service-to-client",
-      "from": "service",
+      "id": "worker-to-store",
+      "from": "worker",
+      "to": "job_store",
+      "label": "atomic result",
+      "variant": "emphasis"
+    },
+    {
+      "id": "store-to-gateway",
+      "from": "job_store",
+      "to": "gateway",
+      "label": "event replay",
+      "variant": "dashed"
+    },
+    {
+      "id": "gateway-to-client",
+      "from": "gateway",
       "to": "client",
-      "label": "SSE stream (done)",
+      "label": "SSE stream",
       "variant": "dashed"
     },
     {
@@ -351,11 +420,11 @@
   "cards": [
     {
       "dot": "cyan",
-      "title": "API Gateway & SSE Streaming",
+      "title": "Durable State & Process Decoupling",
       "items": [
-        "FastAPI gateway enforces 10MB payload limit (AI_MAX_BODY_SIZE) and privacy-safe access logging",
-        "verify_service_bearer validates service-to-service Bearer tokens against AI_SECRET_KEY",
-        "GenerateService streams progress, gap reports, partial section updates, and terminal done/needs_input"
+        "AI service owns durable generation state in PostgreSQL: jobs, immutable input snapshots, attempts, leases, and replayable event logs",
+        "FastAPI gateway accepts requests (POST 202) and serves replayable SSE (Last-Event-ID) without holding pipeline execution",
+        "Independent background worker claims jobs with SKIP LOCKED, maintains heartbeat leases, and tracks context via JOB_CONTEXT"
       ]
     },
     {
@@ -364,16 +433,16 @@
       "items": [
         "build_candidate_evidence bóc tách Ground-Truth Evidence (con số, tỷ lệ, công nghệ) kèm ID cố định",
         "DeterministicGuard ép buộc 0% dung sai bịa đặt số liệu và loại bỏ hoàn toàn buzzwords sáo rỗng",
-        "Ungrounded proposals fall back to original candidate facts, guaranteeing valid truthful output"
+        "Tất cả prompt & schema calls đều qua generate_at_stage; lỗi được phân loại an toàn không làm lộ dữ liệu cá nhân"
       ]
     },
     {
       "dot": "emerald",
-      "title": "RenderCV Canonical Schema Compliance",
+      "title": "Live Gemini Provider & RenderCV Compliance",
       "items": [
-        "build_canonical_document merges candidate content with Render template design, locale, and settings",
-        "assert_canonical_document validates full JSON structure against the RenderCV canonical schema",
-        "Output is serialized to YAML (cvYaml) and returned alongside structured document in the done event"
+        "Chỉ hỗ trợ Gemini live provider (gemini-2.0-flash / 2.5); mock offline provider đã được gỡ bỏ hoàn toàn",
+        "assert_canonical_document validates full JSON structure against the RenderCV canonical schema before YAML serialization",
+        "Terminal state (COMPLETED / NEEDS_INPUT / FAILED), validated result, and safe diagnostic codes commit in one transaction"
       ]
     }
   ]

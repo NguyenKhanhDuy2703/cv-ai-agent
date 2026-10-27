@@ -385,7 +385,7 @@
     "category": "architecture",
     "type": "ARCHITECTURE",
     "file": "./cv-system.html",
-    "desc": "End-to-end stateless system topology across FastAPI gateway, generation pipeline, candidate evidence store, deterministic guards, static RAG, and LLM provider."
+    "desc": "Dual-process system topology: FastAPI Gateway, PostgreSQL Job Store, Generation Worker (SKIP LOCKED), Evidence Store, Fact Guards, and Live Gemini LLM."
   },
   {
     "id": "cv-pipeline",
@@ -393,15 +393,15 @@
     "category": "workflow",
     "type": "WORKFLOW",
     "file": "./cv-pipeline.html",
-    "desc": "8-step one-shot generation workflow: gap detection, evidence isolation, JD analysis, static RAG, section writers, 0% fabrication guard, and RenderCV validation."
+    "desc": "6-phase generation workflow: intake snapshot, gap detection, evidence isolation, static RAG, typed writers (generate_at_stage), 0% fact guard, and RenderCV validation."
   },
   {
     "id": "cv-sequence",
-    "title": "Real-Time SSE Generation Sequence",
+    "title": "Durable Job Execution & SSE Sequence",
     "category": "architecture",
     "type": "SEQUENCE",
     "file": "./cv-sequence.html",
-    "desc": "Interactive SSE sequence lifecycle: Render Backend request, service Bearer auth, asyncio queue buffering, guarded section generation, and terminal done delivery."
+    "desc": "End-to-end durable lifecycle: Consumer POST 202 -> DB snapshot -> Worker claim (SKIP LOCKED) & lease -> Event persistence -> SSE streaming with Last-Event-ID -> Atomic result commit."
   },
   {
     "id": "cv-api",
@@ -409,7 +409,7 @@
     "category": "architecture",
     "type": "ARCHITECTURE",
     "file": "./cv-api.html",
-    "desc": "FastAPI server bootstrap, Bearer authentication guard, route streaming handlers, and GenerateService async task management."
+    "desc": "Server bootstrap (main.py), CORS, 10MB body limit, DB lifespan connection pool, health readiness probes, durable job routing, and JobRepository."
   },
   {
     "id": "cv-modules",
@@ -417,7 +417,7 @@
     "category": "architecture",
     "type": "TREE",
     "file": "./cv-modules.html",
-    "desc": "Complete directory decomposition of active codebase modules in src/ (api, constants, core, guard, knowledge, llm, pipeline, schemas, yaml_layer)."
+    "desc": "Complete directory decomposition covering all 10 modules in src/ (including operations.py, jobs, worker.py, api, guard, llm, pipeline, schemas) and operational entrypoints."
   }
 ];
 

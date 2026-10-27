@@ -11,12 +11,12 @@
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
+      "revision": "feabee2dc795dd2dd0dd678b5d5707408c9efac5"
     }
   },
   "lanes": [
     { "id": "gateway", "label": "Client & Gateway" },
-    { "id": "agent", "label": "Pipeline Orchestrator" },
+    { "id": "agent", "label": "Worker & Pipeline" },
     { "id": "ai", "label": "Knowledge & Typed Writers" },
     { "id": "safety", "label": "Deterministic Guard", "variant": "exception" }
   ],
@@ -45,14 +45,14 @@
       "col": 0,
       "type": "external",
       "label": "1. Ingestion",
-      "sublabel": "GenerateCvRequest",
-      "tag": "JD + Profile JSON",
+      "sublabel": "CreateGenerationRequest",
+      "tag": "JD + Profile Snapshot",
       "sources": [
         {
           "path": "src/api/routes.py",
-          "line": 17,
-          "end_line": 34,
-          "label": "generate stream endpoint"
+          "line": 29,
+          "end_line": 36,
+          "label": "create_generation"
         }
       ]
     },
@@ -101,8 +101,8 @@
       "sources": [
         {
           "path": "src/core/jd_analyzer.py",
-          "line": 15,
-          "end_line": 120,
+          "line": 23,
+          "end_line": 51,
           "label": "JDAnalyzer"
         }
       ]
@@ -153,7 +153,7 @@
         {
           "path": "src/pipeline/generation/writers.py",
           "line": 14,
-          "end_line": 77,
+          "end_line": 56,
           "label": "Section Writers"
         }
       ]
@@ -214,15 +214,21 @@
       "lane": "gateway",
       "col": 5,
       "type": "external",
-      "label": "9. Stream Result",
-      "sublabel": "SSE done / needs_input",
-      "tag": "Terminal Event",
+      "label": "9. Atomic Result",
+      "sublabel": "COMPLETED in PostgreSQL",
+      "tag": "Durable CV Result",
       "sources": [
         {
-          "path": "src/api/service.py",
-          "line": 18,
-          "end_line": 86,
-          "label": "GenerateService"
+          "path": "src/worker.py",
+          "line": 32,
+          "end_line": 47,
+          "label": "worker _generate"
+        },
+        {
+          "path": "src/api/routes.py",
+          "line": 43,
+          "end_line": 49,
+          "label": "get_generation_result"
         }
       ]
     }
@@ -305,7 +311,7 @@
       "dot": "cyan",
       "title": "Intake, Gap Detection & Evidence Isolation",
       "items": [
-        "Normalize request and execute detect_gaps(); missing required items returns terminal needs_input immediately without invoking LLM",
+        "Normalize request snapshot in PostgreSQL; detect_gaps() returns terminal needs_input without invoking LLM if required items are missing",
         "Candidate Profile is the sole source of candidate facts, preserved in an immutable EvidenceStore with stable client IDs"
       ]
     },
@@ -313,7 +319,7 @@
       "dot": "rose",
       "title": "JD Analysis, Static RAG & Typed Writers",
       "items": [
-        "JDAnalyzer extracts seniority, role family, required/preferred skills and keywords with deterministic fallback",
+        "JDAnalyzer extracts seniority, role family, required/preferred skills and keywords via generate_at_stage",
         "StaticKnowledgeRetriever performs BM25 retrieval across vetted industry packs for summary, experience, and project phrasing",
         "Typed section writers (SummaryWriter, ExperienceWriter, ProjectWriter) produce structured proposals citing evidence IDs"
       ]
@@ -324,7 +330,7 @@
       "items": [
         "DeterministicGuard verifies numbers, dates, technologies, and metrics against cited evidence IDs with zero tolerance",
         "Ungrounded claims automatically fall back to original candidate facts, guaranteeing a valid partial result",
-        "Canonical document complies strictly with RenderCV schema and is serialized to YAML before SSE completion"
+        "GenerationWorker verifies canonical schema, serializes YAML, and commits status COMPLETED and result atomically"
       ]
     }
   ]

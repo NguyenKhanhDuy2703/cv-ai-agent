@@ -10,13 +10,13 @@
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
+      "revision": "feabee2dc795dd2dd0dd678b5d5707408c9efac5"
     },
     "views": [
       {
         "id": "overview",
         "label": "Full API Lifecycle",
-        "focus": ["client", "server", "auth", "routes", "service", "pipeline"]
+        "focus": ["client", "server", "auth", "routes", "jobs_repo", "worker"]
       },
       {
         "id": "startup",
@@ -26,7 +26,7 @@
       {
         "id": "api-module",
         "label": "src/api Module",
-        "focus": ["server", "auth", "routes", "service"]
+        "focus": ["server", "auth", "routes", "jobs_repo"]
       }
     ]
   },
@@ -43,8 +43,8 @@
       "sources": [
         {
           "path": "src/config.py",
-          "line": 14,
-          "end_line": 49,
+          "line": 9,
+          "end_line": 53,
           "label": "Settings"
         }
       ]
@@ -62,7 +62,7 @@
         {
           "path": "src/main.py",
           "line": 6,
-          "end_line": 18,
+          "end_line": 23,
           "label": "main entry"
         }
       ]
@@ -71,7 +71,7 @@
       "id": "client",
       "type": "external",
       "label": "Render Backend",
-      "sublabel": "Backend Worker",
+      "sublabel": "Consumer Service",
       "tag": "HTTP / SSE Consumer",
       "icon": "person",
       "pos": [40, 180],
@@ -82,7 +82,7 @@
       "type": "backend",
       "label": "FastAPI Server",
       "sublabel": "src/api/server.py",
-      "tag": "CORS + 10MB Limit",
+      "tag": "CORS, 10MB, Lifespan",
       "icon": "backend",
       "pos": [260, 180],
       "size": [140, 64],
@@ -90,7 +90,7 @@
         {
           "path": "src/api/server.py",
           "line": 15,
-          "end_line": 80,
+          "end_line": 114,
           "label": "FastAPI app & middleware"
         }
       ]
@@ -102,7 +102,7 @@
       "sublabel": "src/api/auth.py",
       "tag": "verify_service_bearer",
       "icon": "security",
-      "pos": [480, 180],
+      "pos": [470, 180],
       "size": [130, 64],
       "sources": [
         {
@@ -116,72 +116,54 @@
     {
       "id": "routes",
       "type": "backend",
-      "label": "AI API Router",
+      "label": "Job Routes",
       "sublabel": "src/api/routes.py",
-      "tag": "POST /generate/stream",
+      "tag": "POST 202 & GET /events",
       "icon": "backend",
-      "pos": [690, 180],
+      "pos": [670, 180],
       "size": [140, 64],
       "sources": [
         {
           "path": "src/api/routes.py",
-          "line": 17,
-          "end_line": 34,
-          "label": "generate stream endpoint"
+          "line": 15,
+          "end_line": 71,
+          "label": "job routes"
         }
       ]
     },
     {
-      "id": "service",
+      "id": "jobs_repo",
+      "type": "database",
+      "label": "Job Repository",
+      "sublabel": "src/jobs/repository.py",
+      "tag": "PostgreSQL Snapshots",
+      "icon": "database",
+      "pos": [880, 180],
+      "size": [150, 64],
+      "sources": [
+        {
+          "path": "src/jobs/repository.py",
+          "line": 14,
+          "end_line": 240,
+          "label": "JobRepository"
+        }
+      ]
+    },
+    {
+      "id": "worker",
       "type": "backend",
-      "label": "Generate Service",
-      "sublabel": "src/api/service.py",
-      "tag": "Async Queue & SSE Stream",
+      "label": "Generation Worker",
+      "sublabel": "src/worker.py",
+      "tag": "SKIP LOCKED Claims",
       "icon": "backend",
-      "pos": [910, 180],
+      "pos": [880, 320],
       "size": [150, 64],
       "sources": [
         {
-          "path": "src/api/service.py",
-          "line": 18,
-          "end_line": 86,
-          "label": "GenerateService"
-        }
-      ]
-    },
-    {
-      "id": "pipeline",
-      "type": "backend",
-      "label": "Generation Pipeline",
-      "sublabel": "generation/orchestrator.py",
-      "tag": "8-Step One-Shot Engine",
-      "icon": "active",
-      "pos": [910, 310],
-      "size": [150, 64],
-      "sources": [
-        {
-          "path": "src/pipeline/generation/orchestrator.py",
-          "line": 23,
-          "end_line": 156,
-          "label": "CvGenerationPipeline"
-        }
-      ]
-    },
-    {
-      "id": "llm",
-      "type": "cloud",
-      "label": "LLM Provider",
-      "sublabel": "src/llm/factory.py",
-      "tag": "Gemini 2.0 / Mock",
-      "icon": "cloud",
-      "pos": [690, 310],
-      "size": [140, 64],
-      "sources": [
-        {
-          "path": "src/llm/factory.py",
-          "line": 9,
-          "end_line": 25,
-          "label": "get_llm_provider"
+          "path": "src/worker.py",
+          "line": 25,
+          "end_line": 128,
+          "label": "GenerationWorker"
         }
       ]
     }
@@ -189,13 +171,13 @@
   "boundaries": [
     {
       "kind": "region",
-      "label": "src/api Package Boundary",
-      "wraps": ["server", "auth", "routes", "service"]
+      "label": "API Subsystem Boundary",
+      "wraps": ["server", "auth", "routes"]
     },
     {
       "kind": "region",
-      "label": "Core AI Generation Engine",
-      "wraps": ["pipeline", "llm"]
+      "label": "Storage & Worker Execution",
+      "wraps": ["jobs_repo", "worker"]
     }
   ],
   "connections": [
@@ -215,7 +197,7 @@
       "id": "client-to-server",
       "from": "client",
       "to": "server",
-      "label": "POST /generate/stream",
+      "label": "POST /generations",
       "variant": "emphasis"
     },
     {
@@ -232,57 +214,60 @@
       "label": "authorized"
     },
     {
-      "id": "routes-to-service",
+      "id": "routes-to-repo",
       "from": "routes",
-      "to": "service",
-      "label": "exec stream"
+      "to": "jobs_repo",
+      "label": "persist 202 job",
+      "variant": "emphasis"
     },
     {
-      "id": "service-to-pipeline",
-      "from": "service",
-      "to": "pipeline",
-      "label": "async task"
+      "id": "repo-to-worker",
+      "from": "jobs_repo",
+      "to": "worker",
+      "label": "claim with lease",
+      "variant": "emphasis"
     },
     {
-      "id": "pipeline-to-llm",
-      "from": "pipeline",
-      "to": "llm",
-      "label": "LLM prompt"
+      "id": "repo-to-server",
+      "from": "jobs_repo",
+      "to": "server",
+      "label": "stream events",
+      "variant": "dashed"
     },
     {
-      "id": "service-to-client",
-      "from": "service",
+      "id": "server-to-client",
+      "from": "server",
       "to": "client",
-      "label": "SSE stream",
+      "label": "SSE stream & result",
       "variant": "dashed"
     }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "Server Bootstrap & Middlewares",
+      "title": "Server Bootstrap & Lifespan Health",
       "items": [
         "src/main.py starts Uvicorn ASGI server binding to AI_PORT (default 8001)",
-        "src/config.py loads and validates environment variables with Pydantic BaseSettings",
-        "src/api/server.py registers CORSMiddleware, health probes, and 10MB body limit"
+        "FastAPI lifespan initializes Database and JobRepository connection pool at startup",
+        "/health/ready probes database connectivity and Alembic migration revision before routing traffic"
       ]
     },
     {
       "dot": "rose",
-      "title": "Service Bearer Security & API Routers",
+      "title": "Service Bearer Security & Job Routing",
       "items": [
         "src/api/auth.py exposes verify_service_bearer FastAPI dependency checking Authorization Bearer token against AI_SECRET_KEY",
-        "src/api/routes.py handles backend-only POST /v1/ai/generate/stream with StreamingResponse",
-        "Validates GenerateCvRequest payload containing job description, candidate profile, and Render template settings"
+        "POST /v1/ai/generations accepts CreateGenerationRequest, deduplicates by requestId, persists snapshot, and returns 202 with status URL",
+        "GET /v1/ai/generations/{id}/events streams persisted SSE events with Last-Event-ID reconnection support"
       ]
     },
     {
       "dot": "emerald",
-      "title": "Generate Service & Core Orchestrator",
+      "title": "Job Store & Independent Worker Execution",
       "items": [
-        "src/api/service.py (GenerateService) manages background asyncio tasks, event buffering, and client disconnect cancellation",
-        "Guarantees standard SSE envelopes ({type, requestId, generationId, sequence, data}) across progress, gap_report, and partial_update",
-        "Dispatches work to CvGenerationPipeline and emits exactly one terminal event: needs_input, done, or error"
+        "src/jobs/repository.py manages durable jobs, event logs, and atomic state transitions in PostgreSQL",
+        "src/worker.py polls for QUEUED jobs using SELECT ... FOR UPDATE SKIP LOCKED and acquires fenced leases",
+        "Client disconnects never abort worker execution; results and events remain durable for 24-hour retention"
       ]
     }
   ]

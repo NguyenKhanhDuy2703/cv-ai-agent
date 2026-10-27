@@ -3,14 +3,14 @@
   "diagram_type": "sequence",
   "meta": {
     "title": "Stateless Canonical CV Generation SSE Sequence Diagram",
-    "subtitle": "Bearer Authentication, Async Queue Buffering, Guarded Section Writers, Canonical Validation, and EventSource Delivery",
+    "subtitle": "Bearer Authentication, Durable PostgreSQL Job Store, Worker SKIP LOCKED Claims, and Replayable SSE Delivery",
     "output": "archify-architecture/cv-sequence.html",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
+      "revision": "feabee2dc795dd2dd0dd678b5d5707408c9efac5"
     }
   },
   "participants": [
@@ -18,19 +18,25 @@
       "id": "client",
       "type": "external",
       "label": "Render Backend",
-      "sublabel": "Worker & DB Owner"
+      "sublabel": "Consumer Service"
     },
     {
       "id": "server",
       "type": "backend",
-      "label": "FastAPI Gateway",
-      "sublabel": "src/api/server.py",
+      "label": "FastAPI Server",
+      "sublabel": "server.py",
       "sources": [
         {
           "path": "src/api/server.py",
           "line": 15,
-          "end_line": 80,
+          "end_line": 114,
           "label": "FastAPI server"
+        },
+        {
+          "path": "src/api/routes.py",
+          "line": 29,
+          "end_line": 71,
+          "label": "job routes"
         }
       ]
     },
@@ -38,7 +44,7 @@
       "id": "auth",
       "type": "security",
       "label": "Bearer Guard",
-      "sublabel": "src/api/auth.py",
+      "sublabel": "auth.py",
       "sources": [
         {
           "path": "src/api/auth.py",
@@ -49,16 +55,30 @@
       ]
     },
     {
-      "id": "service",
-      "type": "backend",
-      "label": "AI Service",
-      "sublabel": "service.py",
+      "id": "db",
+      "type": "database",
+      "label": "PostgreSQL DB",
+      "sublabel": "repository.py",
       "sources": [
         {
-          "path": "src/api/service.py",
-          "line": 18,
-          "end_line": 86,
-          "label": "GenerateService"
+          "path": "src/jobs/repository.py",
+          "line": 14,
+          "end_line": 240,
+          "label": "JobRepository"
+        }
+      ]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Gen Worker",
+      "sublabel": "src/worker.py",
+      "sources": [
+        {
+          "path": "src/worker.py",
+          "line": 25,
+          "end_line": 144,
+          "label": "GenerationWorker"
         }
       ]
     },
@@ -71,22 +91,8 @@
         {
           "path": "src/pipeline/generation/orchestrator.py",
           "line": 23,
-          "end_line": 156,
+          "end_line": 154,
           "label": "CvGenerationPipeline"
-        }
-      ]
-    },
-    {
-      "id": "writers",
-      "type": "backend",
-      "label": "Section Writers",
-      "sublabel": "writers.py",
-      "sources": [
-        {
-          "path": "src/pipeline/generation/writers.py",
-          "line": 14,
-          "end_line": 77,
-          "label": "Section Writers"
         }
       ]
     },
@@ -122,23 +128,23 @@
   "segments": [
     {
       "from": 140,
-      "to": 240,
-      "label": "1. Ingestion & Bearer Authentication"
+      "to": 305,
+      "label": "1. Ingestion & Snapshot Persistence"
     },
     {
-      "from": 250,
-      "to": 355,
-      "label": "2. Queue Init & Evidence Isolation"
+      "from": 320,
+      "to": 480,
+      "label": "2. 202 Accepted & Worker Lease Claim"
     },
     {
-      "from": 365,
-      "to": 520,
-      "label": "3. Guarded Section Writing & Partial Updates"
+      "from": 495,
+      "to": 690,
+      "label": "3. Generation Execution & Event Logging"
     },
     {
-      "from": 530,
-      "to": 650,
-      "label": "4. Canonical Document Assembly & Terminal Done"
+      "from": 705,
+      "to": 985,
+      "label": "4. Canonical Validation & Terminal Delivery"
     }
   ],
   "messages": [
@@ -146,15 +152,15 @@
       "id": "m1",
       "from": "client",
       "to": "server",
-      "y": 160,
-      "label": "POST /v1/ai/generate/stream",
+      "y": 170,
+      "label": "POST /v1/ai/generations",
       "variant": "emphasis"
     },
     {
       "id": "m2",
       "from": "server",
       "to": "auth",
-      "y": 190,
+      "y": 210,
       "label": "verify_service_bearer()",
       "variant": "security"
     },
@@ -162,188 +168,227 @@
       "id": "m3",
       "from": "auth",
       "to": "server",
-      "y": 220,
+      "y": 250,
       "label": "Bearer token valid",
       "variant": "return"
     },
     {
       "id": "m4",
       "from": "server",
-      "to": "service",
-      "y": 255,
-      "label": "GenerateService.stream(request)",
-      "variant": "default"
-    },
-    {
-      "id": "m5",
-      "from": "service",
-      "to": "pipeline",
-      "y": 285,
-      "label": "create_task(pipeline.generate)",
+      "to": "db",
+      "y": 290,
+      "label": "repository.create(snapshot)",
       "variant": "emphasis"
     },
     {
+      "id": "m5",
+      "from": "db",
+      "to": "server",
+      "y": 340,
+      "label": "job created (status: QUEUED)",
+      "variant": "return"
+    },
+    {
       "id": "m6",
-      "from": "pipeline",
-      "to": "service",
-      "y": 315,
-      "label": "emit: progress(normalize, evidence)",
+      "from": "server",
+      "to": "client",
+      "y": 380,
+      "label": "202 Accepted (status URL)",
       "variant": "return"
     },
     {
       "id": "m7",
-      "from": "service",
-      "to": "client",
-      "y": 345,
-      "label": "SSE: event: progress (sequence 1..2)",
-      "variant": "return"
-    },
-    {
-      "id": "m8",
-      "from": "pipeline",
-      "to": "writers",
-      "y": 380,
-      "label": "generate(summary, exp, proj)",
+      "from": "client",
+      "to": "server",
+      "y": 420,
+      "label": "GET /events (Last-Event-ID)",
       "variant": "default"
     },
     {
+      "id": "m8",
+      "from": "worker",
+      "to": "db",
+      "y": 460,
+      "label": "claim() FOR UPDATE SKIP LOCKED",
+      "variant": "emphasis"
+    },
+    {
       "id": "m9",
-      "from": "writers",
-      "to": "guard",
-      "y": 410,
-      "label": "DeterministicGuard.verify(facts)",
-      "variant": "security"
+      "from": "db",
+      "to": "worker",
+      "y": 510,
+      "label": "fenced lease token acquired",
+      "variant": "return"
     },
     {
       "id": "m10",
-      "from": "guard",
-      "to": "writers",
-      "y": 440,
-      "label": "0% verified (or fallback)",
-      "variant": "return"
+      "from": "worker",
+      "to": "pipeline",
+      "y": 550,
+      "label": "generate(request)",
+      "variant": "default"
     },
     {
       "id": "m11",
-      "from": "writers",
-      "to": "service",
-      "y": 470,
-      "label": "emit: partial_update (draft section)",
-      "variant": "return"
+      "from": "pipeline",
+      "to": "guard",
+      "y": 590,
+      "label": "DeterministicGuard.verify()",
+      "variant": "security"
     },
     {
       "id": "m12",
-      "from": "service",
-      "to": "client",
-      "y": 500,
-      "label": "SSE: event: partial_update (seq 3..4)",
+      "from": "guard",
+      "to": "pipeline",
+      "y": 630,
+      "label": "0% verified facts",
       "variant": "return"
     },
     {
       "id": "m13",
       "from": "pipeline",
-      "to": "validator",
-      "y": 545,
-      "label": "assert_canonical_document(doc)",
-      "variant": "security"
-    },
-    {
-      "id": "m14",
-      "from": "validator",
-      "to": "pipeline",
-      "y": 575,
-      "label": "canonical schema valid",
+      "to": "worker",
+      "y": 670,
+      "label": "on_event(progress, partial)",
       "variant": "return"
     },
     {
+      "id": "m14",
+      "from": "worker",
+      "to": "db",
+      "y": 720,
+      "label": "repository.append(events)",
+      "variant": "default"
+    },
+    {
       "id": "m15",
-      "from": "pipeline",
-      "to": "service",
-      "y": 605,
-      "label": "GenerateCvResult(status=success)",
+      "from": "db",
+      "to": "server",
+      "y": 760,
+      "label": "stream event updates",
       "variant": "return"
     },
     {
       "id": "m16",
-      "from": "service",
+      "from": "server",
       "to": "client",
-      "y": 635,
-      "label": "SSE: event: done (terminal cvYaml)",
+      "y": 800,
+      "label": "SSE: progress & partial_update",
+      "variant": "return"
+    },
+    {
+      "id": "m17",
+      "from": "pipeline",
+      "to": "validator",
+      "y": 840,
+      "label": "assert_canonical_document()",
+      "variant": "security"
+    },
+    {
+      "id": "m18",
+      "from": "validator",
+      "to": "pipeline",
+      "y": 880,
+      "label": "valid RenderCV schema",
+      "variant": "return"
+    },
+    {
+      "id": "m19",
+      "from": "worker",
+      "to": "db",
+      "y": 920,
+      "label": "finish(result, COMPLETED)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m20",
+      "from": "server",
+      "to": "client",
+      "y": 960,
+      "label": "SSE: done (canonical cvYaml)",
       "variant": "emphasis"
     }
   ],
   "activations": [
     {
       "participant": "client",
-      "from": 160,
-      "to": 640,
+      "from": 170,
+      "to": 965,
       "type": "external"
     },
     {
       "participant": "server",
-      "from": 160,
-      "to": 260,
+      "from": 170,
+      "to": 295,
       "type": "backend"
     },
     {
       "participant": "auth",
-      "from": 190,
-      "to": 225,
+      "from": 210,
+      "to": 255,
       "type": "security"
     },
     {
-      "participant": "service",
-      "from": 255,
-      "to": 640,
+      "participant": "db",
+      "from": 290,
+      "to": 925,
+      "type": "database"
+    },
+    {
+      "participant": "server",
+      "from": 380,
+      "to": 965,
+      "type": "backend"
+    },
+    {
+      "participant": "worker",
+      "from": 460,
+      "to": 925,
       "type": "backend"
     },
     {
       "participant": "pipeline",
-      "from": 285,
-      "to": 610,
-      "type": "backend"
-    },
-    {
-      "participant": "writers",
-      "from": 380,
-      "to": 475,
+      "from": 550,
+      "to": 885,
       "type": "backend"
     },
     {
       "participant": "guard",
-      "from": 410,
-      "to": 445,
+      "from": 590,
+      "to": 635,
       "type": "security"
     },
     {
       "participant": "validator",
-      "from": 545,
-      "to": 580,
+      "from": 840,
+      "to": 885,
       "type": "security"
     }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "Stateless Request & SSE Envelopes",
+      "title": "Durable Ingestion & Replayable Streaming",
       "items": [
-        "Backend sends GenerateCvRequest with client-stable requestId; bearer token verified against AI_SECRET_KEY",
-        "GenerateService maintains an asyncio.Queue, wrapping events with sequence numbers and returning text/event-stream"
+        "POST /v1/ai/generations accepts requests, deduplicates by requestId, persists snapshot, and returns 202 Accepted",
+        "GET /v1/ai/generations/{id}/events streams persisted events using Last-Event-ID cursors; client disconnects never cancel generation"
       ]
     },
     {
       "dot": "rose",
-      "title": "Deterministic Safety & Partial Updates",
+      "title": "Worker Isolation & Safe Error Handling",
       "items": [
-        "Each generated section passes DeterministicGuard; ungrounded statements fallback to original facts",
-        "Successful sections immediately emit partial_update events so backend subscribers view live progress"
+        "GenerationWorker runs in a dedicated process, claiming jobs via SELECT ... FOR UPDATE SKIP LOCKED",
+        "Lease tokens and background heartbeats prevent race conditions; JOB_CONTEXT tracks jobId/requestId/attempt",
+        "Khi phát sinh lỗi, safe_error_details phân loại mã lỗi (LLM_RATE_LIMIT, LLM_TIMEOUT, LLM_SCHEMA_ERROR) và lưu vết an toàn"
       ]
     },
     {
       "dot": "emerald",
-      "title": "RenderCV Schema Validation & Terminal Event",
+      "title": "Canonical Validation & Result Persistence",
       "items": [
-        "Before finishing, canonical document is validated against render_cv_schema.json and serialized to YAML",
-        "Exactly one terminal event (needs_input, done, or error) closes the SSE stream with full report"
+        "Pipeline ensures 0% metric fabrication and validates the assembled document against RenderCV canonical JSON schema",
+        "Final status (COMPLETED), serialized cvYaml, and terminal done event commit together atomically in PostgreSQL"
       ]
     }
   ]

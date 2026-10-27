@@ -5,12 +5,12 @@ Each HTML file is self-contained with zero CDN dependencies; the index loads dia
 
 | Published Diagram | Type | Preserved Source Specification | Description |
 | --- | --- | --- | --- |
-| [System Architecture](cv-system.html) | Architecture | [cv-system.json](specs/cv-system.json) | Stateless system topology across FastAPI Gateway, Generation Pipeline, Candidate Evidence Store, Deterministic Guards, Static RAG, and LLM Provider. |
-| [Generation Pipeline](cv-pipeline.html) | Workflow | [cv-pipeline.json](specs/cv-pipeline.json) | 8-step one-shot generation pipeline (Gap Detection, Evidence Isolation, JD Analysis, Static RAG, Section Writers, 0% Fabrication Guard, and RenderCV Validation). |
-| [SSE Sequence](cv-sequence.html) | Sequence | [cv-sequence.json](specs/cv-sequence.json) | Real-time SSE streaming lifecycle: Service Bearer auth, asyncio queue buffering, guarded section generation, and terminal `done`/`needs_input` delivery. |
-| [API Subsystem Flow](cv-api.html) | Architecture | [cv-api.json](specs/cv-api.json) | Server bootstrap (`main.py`), CORS + 10MB body limit, `POST /v1/ai/generate/stream` routing, and `GenerateService` lifecycle. |
-| [Codebase Hierarchy](cv-modules.html) | Tree | [cv-modules.json](specs/cv-modules.json) | Module tree decomposition across `src/` (`api`, `constants`, `core`, `guard`, `knowledge`, `llm`, `pipeline/generation`, `schemas`, `yaml_layer`). |
+| [System Architecture](cv-system.html) | Architecture | [cv-system.json](specs/cv-system.json) | Dual-process system architecture: FastAPI Gateway, PostgreSQL Job Store, Independent Generation Worker (`SKIP LOCKED`), Generation Pipeline, Deterministic Guards, Static RAG, and Live Gemini LLM Provider (`operations.py`). |
+| [Generation Pipeline](cv-pipeline.html) | Workflow | [cv-pipeline.json](specs/cv-pipeline.json) | 6-phase generation workflow: Intake & Snapshot, Gap Detection & Evidence Store, Strategic Planning & Section Writers (`generate_at_stage`), 0% Fact Guard, Canonical Validator, and Atomic Result Persistence. |
+| [Durable SSE Sequence](cv-sequence.html) | Sequence | [cv-sequence.json](specs/cv-sequence.json) | End-to-end durable generation lifecycle: POST 202 Accepted, DB snapshot, Worker claim (`SKIP LOCKED`) & lease, `JOB_CONTEXT` tracking, replayable SSE stream with `Last-Event-ID`, and safe diagnostic failure persistence. |
+| [API Subsystem Flow](cv-api.html) | Architecture | [cv-api.json](specs/cv-api.json) | FastAPI Gateway with asyncpg connection pooling, health readiness probes, durable job endpoints (`POST /v1/ai/generations`, `GET /events`, `GET /result`), and `JobRepository`. |
+| [Codebase Hierarchy](cv-modules.html) | Tree | [cv-modules.json](specs/cv-modules.json) | Codebase hierarchy decomposition covering all 10 modules in `src/` (including `llm/operations.py`, `jobs`, `worker.py`, `api`, `guard`, `llm`, `pipeline`, `schemas`), alembic migrations, and operational entrypoints. |
 
-The five specifications are pinned to the latest Git commit (`f37d777ff952b9b453d70b1f843de01fa7aa0a53`) and verified against repository evidence. Intermediate renders, receipts, and browser logs are disposable.
+The five specifications are pinned to Git commit [`feabee2dc795dd2dd0dd678b5d5707408c9efac5`](https://github.com/khanhduy1407/cv-ai-agent/commit/feabee2dc795dd2dd0dd678b5d5707408c9efac5) and verified against repository evidence. Intermediate renders, receipts, and browser logs are disposable.
 
 See the [project README](../README.md) and [learning guide](../docs/learning/README.md) for the one-shot generation contract and test execution.
