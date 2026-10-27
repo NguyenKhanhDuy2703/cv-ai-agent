@@ -28,7 +28,7 @@ The validated RenderCV object containing `cv`, `design`, `locale`, and `settings
 A deterministic UUID based on generation and client item identity.
 
 ## Generation job
-A backend-owned record containing an immutable input snapshot, request ID, status, deadline, persisted events and resulting CV ID. Each job has one terminal outcome.
+An AI-owned durable record containing an immutable input snapshot, request ID, status, deadline, attempts, lease, persisted events and validated result. Each job has one persisted terminal outcome. Consumer CV IDs belong to the consuming backend.
 
 ## Partial result
 A valid CV produced with source-fact fallbacks and warnings after a non-fatal writer or retrieval problem.

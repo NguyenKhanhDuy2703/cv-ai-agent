@@ -10,7 +10,7 @@
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "63488c91d684ee6477cd70a8e26deff9c43ca1c7"
+      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
     },
     "views": [
       {
@@ -39,7 +39,7 @@
       "tag": "HTTP / SSE Consumer",
       "icon": "person",
       "pos": [40, 50],
-      "size": [115, 60]
+      "size": [130, 60]
     },
     {
       "id": "gateway",
@@ -48,8 +48,8 @@
       "sublabel": "src/api/server.py",
       "tag": "CORS + 10MB Limit",
       "icon": "backend",
-      "pos": [245, 50],
-      "size": [135, 60],
+      "pos": [260, 50],
+      "size": [140, 60],
       "sources": [
         {
           "path": "src/api/server.py",
@@ -66,8 +66,8 @@
       "sublabel": "src/api/auth.py",
       "tag": "verify_service_bearer",
       "icon": "security",
-      "pos": [470, 50],
-      "size": [125, 60],
+      "pos": [480, 50],
+      "size": [130, 60],
       "sources": [
         {
           "path": "src/api/auth.py",
@@ -82,10 +82,10 @@
       "type": "backend",
       "label": "Generate Service",
       "sublabel": "src/api/service.py",
-      "tag": "Async Queue & SSE Stream",
+      "tag": "Async Queue & SSE",
       "icon": "backend",
-      "pos": [685, 50],
-      "size": [145, 60],
+      "pos": [720, 50],
+      "size": [150, 60],
       "sources": [
         {
           "path": "src/api/service.py",
@@ -99,11 +99,11 @@
       "id": "validator",
       "type": "backend",
       "label": "Canonical Validator",
-      "sublabel": "src/schemas/canonical_validator.py",
+      "sublabel": "canonical_validator.py",
       "tag": "RenderCV JSON Schema",
       "icon": "security",
       "pos": [40, 190],
-      "size": [115, 64],
+      "size": [140, 64],
       "sources": [
         {
           "path": "src/schemas/canonical_validator.py",
@@ -117,11 +117,11 @@
       "id": "guard",
       "type": "security",
       "label": "Deterministic Guard",
-      "sublabel": "src/guard/deterministic_guard.py",
+      "sublabel": "deterministic_guard.py",
       "tag": "0% Fabrication Tolerance",
       "icon": "security",
-      "pos": [245, 190],
-      "size": [135, 64],
+      "pos": [210, 190],
+      "size": [140, 64],
       "sources": [
         {
           "path": "src/guard/deterministic_guard.py",
@@ -132,56 +132,14 @@
       ]
     },
     {
-      "id": "evidence",
-      "type": "backend",
-      "label": "Candidate Evidence",
-      "sublabel": "src/pipeline/generation/evidence.py",
-      "tag": "Stable Fact EvidenceStore",
-      "icon": "backend",
-      "pos": [470, 190],
-      "size": [125, 64],
-      "sources": [
-        {
-          "path": "src/pipeline/generation/evidence.py",
-          "line": 9,
-          "end_line": 65,
-          "label": "build_candidate_evidence"
-        },
-        {
-          "path": "src/core/evidence_extractor.py",
-          "line": 8,
-          "end_line": 63,
-          "label": "extract_candidate_evidence"
-        }
-      ]
-    },
-    {
-      "id": "pipeline",
-      "type": "backend",
-      "label": "Generation Pipeline",
-      "sublabel": "src/pipeline/generation/orchestrator.py",
-      "tag": "8-Step One-Shot Orchestrator",
-      "icon": "active",
-      "pos": [685, 190],
-      "size": [145, 64],
-      "sources": [
-        {
-          "path": "src/pipeline/generation/orchestrator.py",
-          "line": 23,
-          "end_line": 156,
-          "label": "CvGenerationPipeline"
-        }
-      ]
-    },
-    {
       "id": "core_ai",
       "type": "backend",
-      "label": "Typed Section Writers",
-      "sublabel": "src/pipeline/generation/writers.py",
+      "label": "Typed Writers",
+      "sublabel": "pipeline/writers.py",
       "tag": "Summary, Exp, Project",
       "icon": "backend",
-      "pos": [245, 330],
-      "size": [135, 64],
+      "pos": [380, 190],
+      "size": [140, 64],
       "sources": [
         {
           "path": "src/pipeline/generation/writers.py",
@@ -204,14 +162,56 @@
       ]
     },
     {
+      "id": "evidence",
+      "type": "backend",
+      "label": "Candidate Evidence",
+      "sublabel": "generation/evidence.py",
+      "tag": "Stable Fact EvidenceStore",
+      "icon": "backend",
+      "pos": [550, 190],
+      "size": [140, 64],
+      "sources": [
+        {
+          "path": "src/pipeline/generation/evidence.py",
+          "line": 9,
+          "end_line": 65,
+          "label": "build_candidate_evidence"
+        },
+        {
+          "path": "src/core/evidence_extractor.py",
+          "line": 8,
+          "end_line": 63,
+          "label": "extract_candidate_evidence"
+        }
+      ]
+    },
+    {
+      "id": "pipeline",
+      "type": "backend",
+      "label": "Generation Pipeline",
+      "sublabel": "generation/orchestrator.py",
+      "tag": "8-Step Orchestrator",
+      "icon": "active",
+      "pos": [720, 190],
+      "size": [150, 64],
+      "sources": [
+        {
+          "path": "src/pipeline/generation/orchestrator.py",
+          "line": 23,
+          "end_line": 156,
+          "label": "CvGenerationPipeline"
+        }
+      ]
+    },
+    {
       "id": "knowledge",
       "type": "database",
       "label": "Knowledge Retriever",
-      "sublabel": "src/knowledge/static_retriever.py",
+      "sublabel": "static_retriever.py",
       "tag": "BM25 Static RAG Corpus",
       "icon": "database",
-      "pos": [470, 330],
-      "size": [125, 60],
+      "pos": [380, 330],
+      "size": [140, 60],
       "sources": [
         {
           "path": "src/knowledge/static_retriever.py",
@@ -231,11 +231,11 @@
       "id": "llm",
       "type": "cloud",
       "label": "LLM Provider",
-      "sublabel": "src/llm/gemini_provider.py",
+      "sublabel": "gemini_provider.py",
       "tag": "Gemini 2.0 / Mock",
       "icon": "cloud",
-      "pos": [685, 330],
-      "size": [145, 60],
+      "pos": [550, 330],
+      "size": [140, 60],
       "sources": [
         {
           "path": "src/llm/factory.py",
@@ -261,7 +261,7 @@
     {
       "kind": "region",
       "label": "One-Shot Generation Engine",
-      "wraps": ["validator", "guard", "evidence", "pipeline", "core_ai"]
+      "wraps": ["validator", "guard", "core_ai", "evidence", "pipeline"]
     },
     {
       "kind": "region",
@@ -303,10 +303,10 @@
       "label": "isolate facts"
     },
     {
-      "id": "pipeline-to-coreai",
-      "from": "pipeline",
+      "id": "evidence-to-coreai",
+      "from": "evidence",
       "to": "core_ai",
-      "label": "draft sections"
+      "label": "ground truth"
     },
     {
       "id": "coreai-to-guard",

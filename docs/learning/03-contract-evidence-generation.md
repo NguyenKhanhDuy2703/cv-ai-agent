@@ -1,6 +1,6 @@
 # 03 — Contract and evidence
 
-TypeScript contracts live in `packages/cv-contracts/src/ai.ts`; Python mirrors them in `src/schemas/generation.py`. A request includes requestId, generationId, JD, Candidate Profile, options and Render defaults. It accepts no conversation context.
+Python contracts live in `src/schemas/generation.py` and `src/jobs/contracts.py`, published through OpenAPI. The new job API accepts requestId, JD, Candidate Profile, options and renderDefaults, assigning generationId internally. The legacy stream retains caller-supplied generationId. No conversation context is accepted; there is no dependency on consumer TypeScript packages.
 
 Repeated profile items have client-stable IDs. UUID5 combines generation ID, section kind and source ID, preserving structure when processing the same job.
 

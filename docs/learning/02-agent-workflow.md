@@ -1,7 +1,18 @@
 # 02 — One-shot workflow
 
-The Core Agent normalizes a single request, detects gaps, builds candidate evidence, analyzes the JD, retrieves guidance, plans sections, calls typed writers, guards claims and builds/validates the canonical document.
+The API validates structure, normalizes input, deduplicates requestId and persists
+an immutable snapshot before accepting a job. A separate worker claims it.
 
-Missing required data returns terminal `needs_input` before writers run. The frontend edits the input form and submits a separate generation. No history, draft conversation or turns are accepted.
+The pipeline detects gaps, builds candidate evidence, analyzes the JD, retrieves
+guidance, plans sections, runs typed writers, guards claims and builds/validates
+the canonical document. Missing required business data returns needs_input before
+writers run; corrected input starts a new job. There are no conversational turns.
 
-Valid output may be `success` or `partial`. Backend validates and saves it before exposing `done`. Provider failure or deadline expiry becomes `error`.
+A valid success/partial result, terminal status and done event commit together in
+AI storage. needs_input and error are the other terminal events. AI done contains
+no cvId: the consuming backend must save the CV in its own application afterward.
+Model failure can produce the existing truthful partial fallback; an unhandled
+pipeline error fails the job without persisting raw exception text.
+
+SSE only reads persisted events. Worker loss triggers a bounded full-pipeline
+retry with the same snapshot/IDs; it does not resume individual section checkpoints.

@@ -2,34 +2,34 @@
   "schema_version": 1,
   "diagram_type": "sequence",
   "meta": {
-    "title": "Real-time SSE Optimization Sequence Diagram",
-    "subtitle": "Service-to-Service Bearer Authentication, Async Task Buffering, Guard Throttling, and EventSource Delivery",
-    "output": ".archify/cv-sequence.html",
+    "title": "Stateless Canonical CV Generation SSE Sequence Diagram",
+    "subtitle": "Bearer Authentication, Async Queue Buffering, Guarded Section Writers, Canonical Validation, and EventSource Delivery",
+    "output": "archify-architecture/cv-sequence.html",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "63488c91d684ee6477cd70a8e26deff9c43ca1c7"
+      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
     }
   },
   "participants": [
     {
       "id": "client",
       "type": "external",
-      "label": "Client App",
-      "sublabel": "Browser / Backend"
+      "label": "Render Backend",
+      "sublabel": "Worker & DB Owner"
     },
     {
       "id": "server",
       "type": "backend",
       "label": "FastAPI Gateway",
-      "sublabel": "server.py & routes.py",
+      "sublabel": "src/api/server.py",
       "sources": [
         {
           "path": "src/api/server.py",
           "line": 15,
-          "end_line": 57,
+          "end_line": 80,
           "label": "FastAPI server"
         }
       ]
@@ -38,7 +38,7 @@
       "id": "auth",
       "type": "security",
       "label": "Bearer Guard",
-      "sublabel": "auth.py",
+      "sublabel": "src/api/auth.py",
       "sources": [
         {
           "path": "src/api/auth.py",
@@ -51,28 +51,42 @@
     {
       "id": "service",
       "type": "backend",
-      "label": "Tailor Service",
+      "label": "AI Service",
       "sublabel": "service.py",
       "sources": [
         {
           "path": "src/api/service.py",
-          "line": 57,
-          "end_line": 95,
-          "label": "tailor_stream"
+          "line": 18,
+          "end_line": 86,
+          "label": "GenerateService"
         }
       ]
     },
     {
       "id": "pipeline",
       "type": "backend",
-      "label": "Agent Pipeline",
-      "sublabel": "agent_orchestrator.py",
+      "label": "Core Pipeline",
+      "sublabel": "orchestrator.py",
       "sources": [
         {
-          "path": "src/pipeline/agent_orchestrator.py",
-          "line": 43,
-          "end_line": 85,
-          "label": "AgentTailorPipeline"
+          "path": "src/pipeline/generation/orchestrator.py",
+          "line": 23,
+          "end_line": 156,
+          "label": "CvGenerationPipeline"
+        }
+      ]
+    },
+    {
+      "id": "writers",
+      "type": "backend",
+      "label": "Section Writers",
+      "sublabel": "writers.py",
+      "sources": [
+        {
+          "path": "src/pipeline/generation/writers.py",
+          "line": 14,
+          "end_line": 77,
+          "label": "Section Writers"
         }
       ]
     },
@@ -80,27 +94,27 @@
       "id": "guard",
       "type": "security",
       "label": "Fact Guard",
-      "sublabel": "deterministic_guard.py",
+      "sublabel": "guard.py",
       "sources": [
         {
           "path": "src/guard/deterministic_guard.py",
           "line": 55,
-          "end_line": 95,
+          "end_line": 251,
           "label": "DeterministicGuard"
         }
       ]
     },
     {
-      "id": "llm",
-      "type": "cloud",
-      "label": "Gemini Provider",
-      "sublabel": "gemini_provider.py",
+      "id": "validator",
+      "type": "security",
+      "label": "CV Validator",
+      "sublabel": "validator.py",
       "sources": [
         {
-          "path": "src/llm/factory.py",
-          "line": 9,
-          "end_line": 25,
-          "label": "get_llm_provider"
+          "path": "src/schemas/canonical_validator.py",
+          "line": 28,
+          "end_line": 117,
+          "label": "assert_canonical_document"
         }
       ]
     }
@@ -108,23 +122,23 @@
   "segments": [
     {
       "from": 140,
-      "to": 250,
+      "to": 240,
       "label": "1. Ingestion & Bearer Authentication"
     },
     {
-      "from": 265,
-      "to": 370,
-      "label": "2. Background Task Init & SSE Handshake"
+      "from": 250,
+      "to": 355,
+      "label": "2. Queue Init & Evidence Isolation"
     },
     {
-      "from": 380,
-      "to": 550,
-      "label": "3. STAR Rewriting & Deterministic Guards"
+      "from": 365,
+      "to": 520,
+      "label": "3. Guarded Section Writing & Partial Updates"
     },
     {
-      "from": 560,
-      "to": 635,
-      "label": "4. Patch Applier & Terminal Completion"
+      "from": 530,
+      "to": 650,
+      "label": "4. Canonical Document Assembly & Terminal Done"
     }
   ],
   "messages": [
@@ -133,14 +147,14 @@
       "from": "client",
       "to": "server",
       "y": 160,
-      "label": "POST /v1/ai/tailor/stream",
+      "label": "POST /v1/ai/generate/stream",
       "variant": "emphasis"
     },
     {
       "id": "m2",
       "from": "server",
       "to": "auth",
-      "y": 195,
+      "y": 190,
       "label": "verify_service_bearer()",
       "variant": "security"
     },
@@ -148,7 +162,7 @@
       "id": "m3",
       "from": "auth",
       "to": "server",
-      "y": 230,
+      "y": 220,
       "label": "Bearer token valid",
       "variant": "return"
     },
@@ -156,80 +170,104 @@
       "id": "m4",
       "from": "server",
       "to": "service",
-      "y": 280,
-      "label": "tailor_stream(request)",
+      "y": 255,
+      "label": "GenerateService.stream(request)",
       "variant": "default"
     },
     {
       "id": "m5",
       "from": "service",
       "to": "pipeline",
-      "y": 315,
-      "label": "create_task(tailor_document)",
+      "y": 285,
+      "label": "create_task(pipeline.generate)",
       "variant": "emphasis"
     },
     {
       "id": "m6",
-      "from": "service",
-      "to": "client",
-      "y": 350,
-      "label": "SSE: event: started",
+      "from": "pipeline",
+      "to": "service",
+      "y": 315,
+      "label": "emit: progress(normalize, evidence)",
       "variant": "return"
     },
     {
       "id": "m7",
-      "from": "pipeline",
-      "to": "llm",
-      "y": 395,
-      "label": "generate STAR bullet",
-      "variant": "default"
-    },
-    {
-      "id": "m8",
-      "from": "llm",
-      "to": "pipeline",
-      "y": 430,
-      "label": "proposed bullet text",
+      "from": "service",
+      "to": "client",
+      "y": 345,
+      "label": "SSE: event: progress (sequence 1..2)",
       "variant": "return"
     },
     {
-      "id": "m9",
+      "id": "m8",
       "from": "pipeline",
+      "to": "writers",
+      "y": 380,
+      "label": "generate(summary, exp, proj)",
+      "variant": "default"
+    },
+    {
+      "id": "m9",
+      "from": "writers",
       "to": "guard",
-      "y": 465,
-      "label": "verify(0% fabrication)",
+      "y": 410,
+      "label": "DeterministicGuard.verify(facts)",
       "variant": "security"
     },
     {
       "id": "m10",
       "from": "guard",
-      "to": "pipeline",
-      "y": 500,
-      "label": "checks ok (evidence valid)",
+      "to": "writers",
+      "y": 440,
+      "label": "0% verified (or fallback)",
       "variant": "return"
     },
     {
       "id": "m11",
-      "from": "service",
-      "to": "client",
-      "y": 535,
-      "label": "SSE: event: proposal_generated",
+      "from": "writers",
+      "to": "service",
+      "y": 470,
+      "label": "emit: partial_update (draft section)",
       "variant": "return"
     },
     {
       "id": "m12",
-      "from": "pipeline",
-      "to": "service",
-      "y": 575,
-      "label": "TailorDiffReport (status=success)",
-      "variant": "default"
+      "from": "service",
+      "to": "client",
+      "y": 500,
+      "label": "SSE: event: partial_update (seq 3..4)",
+      "variant": "return"
     },
     {
       "id": "m13",
+      "from": "pipeline",
+      "to": "validator",
+      "y": 545,
+      "label": "assert_canonical_document(doc)",
+      "variant": "security"
+    },
+    {
+      "id": "m14",
+      "from": "validator",
+      "to": "pipeline",
+      "y": 575,
+      "label": "canonical schema valid",
+      "variant": "return"
+    },
+    {
+      "id": "m15",
+      "from": "pipeline",
+      "to": "service",
+      "y": 605,
+      "label": "GenerateCvResult(status=success)",
+      "variant": "return"
+    },
+    {
+      "id": "m16",
       "from": "service",
       "to": "client",
-      "y": 615,
-      "label": "SSE: event: completed (terminal)",
+      "y": 635,
+      "label": "SSE: event: done (terminal cvYaml)",
       "variant": "emphasis"
     }
   ],
@@ -237,62 +275,75 @@
     {
       "participant": "client",
       "from": 160,
-      "to": 620,
+      "to": 640,
       "type": "external"
     },
     {
       "participant": "server",
       "from": 160,
-      "to": 285,
+      "to": 260,
       "type": "backend"
     },
     {
       "participant": "auth",
-      "from": 195,
-      "to": 234,
+      "from": 190,
+      "to": 225,
       "type": "security"
     },
     {
       "participant": "service",
-      "from": 280,
-      "to": 620,
+      "from": 255,
+      "to": 640,
       "type": "backend"
     },
     {
       "participant": "pipeline",
-      "from": 315,
-      "to": 580,
+      "from": 285,
+      "to": 610,
       "type": "backend"
     },
     {
-      "participant": "llm",
-      "from": 395,
-      "to": 435,
-      "type": "cloud"
+      "participant": "writers",
+      "from": 380,
+      "to": 475,
+      "type": "backend"
     },
     {
       "participant": "guard",
-      "from": 465,
-      "to": 505,
+      "from": 410,
+      "to": 445,
+      "type": "security"
+    },
+    {
+      "participant": "validator",
+      "from": 545,
+      "to": 580,
       "type": "security"
     }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "SSE Protocol & Disconnect Cancellation",
+      "title": "Stateless Request & SSE Envelopes",
       "items": [
-        "Header text/event-stream thiết lập kết nối streaming HTTP một chiều với chuẩn SSE",
-        "service.py lắng nghe raw_request.is_disconnected() để tự động ngắt background task khi client đóng tab",
-        "Đảm bảo duy nhất một sự kiện kết thúc terminal (completed hoặc failed)"
+        "Backend sends GenerateCvRequest with client-stable requestId; bearer token verified against AI_SECRET_KEY",
+        "GenerateService maintains an asyncio.Queue, wrapping events with sequence numbers and returning text/event-stream"
       ]
     },
     {
       "dot": "rose",
-      "title": "Deterministic Safety on Every Bullet",
+      "title": "Deterministic Safety & Partial Updates",
       "items": [
-        "Mỗi câu bullet mới do LLM sinh ra đều phải chuyển giao cho DeterministicGuard thẩm định",
-        "Bảo vệ 0% sai lệch số liệu, loại bỏ buzzword và chống thổi phồng chức vụ trước khi tạo SemanticPatch"
+        "Each generated section passes DeterministicGuard; ungrounded statements fallback to original facts",
+        "Successful sections immediately emit partial_update events so backend subscribers view live progress"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "RenderCV Schema Validation & Terminal Event",
+      "items": [
+        "Before finishing, canonical document is validated against render_cv_schema.json and serialized to YAML",
+        "Exactly one terminal event (needs_input, done, or error) closes the SSE stream with full report"
       ]
     }
   ]

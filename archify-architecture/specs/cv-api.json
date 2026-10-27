@@ -4,13 +4,13 @@
   "meta": {
     "title": "CV AI Agent - API Subsystem Architecture & Request Flow",
     "subtitle": "Server Lifecycle, Bearer Key Authentication, API Routing, and Application Service Execution",
-    "output": ".archify/architecture-api-flow-20261026-200500/api-flow.html",
+    "output": "archify-architecture/cv-api.html",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "63488c91d684ee6477cd70a8e26deff9c43ca1c7"
+      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
     },
     "views": [
       {
@@ -39,12 +39,12 @@
       "tag": "Pydantic BaseSettings",
       "icon": "briefcase",
       "pos": [40, 50],
-      "size": [120, 60],
+      "size": [130, 60],
       "sources": [
         {
           "path": "src/config.py",
-          "line": 13,
-          "end_line": 42,
+          "line": 14,
+          "end_line": 49,
           "label": "Settings"
         }
       ]
@@ -56,13 +56,13 @@
       "sublabel": "src/main.py",
       "tag": "Uvicorn :8001",
       "icon": "start",
-      "pos": [250, 50],
-      "size": [150, 60],
+      "pos": [260, 50],
+      "size": [140, 60],
       "sources": [
         {
           "path": "src/main.py",
           "line": 6,
-          "end_line": 15,
+          "end_line": 18,
           "label": "main entry"
         }
       ]
@@ -70,12 +70,12 @@
     {
       "id": "client",
       "type": "external",
-      "label": "Client Application",
-      "sublabel": "Web App / Backend Service",
+      "label": "Render Backend",
+      "sublabel": "Backend Worker",
       "tag": "HTTP / SSE Consumer",
       "icon": "person",
       "pos": [40, 180],
-      "size": [120, 64]
+      "size": [130, 64]
     },
     {
       "id": "server",
@@ -84,13 +84,13 @@
       "sublabel": "src/api/server.py",
       "tag": "CORS + 10MB Limit",
       "icon": "backend",
-      "pos": [250, 180],
-      "size": [150, 64],
+      "pos": [260, 180],
+      "size": [140, 64],
       "sources": [
         {
           "path": "src/api/server.py",
           "line": 15,
-          "end_line": 57,
+          "end_line": 80,
           "label": "FastAPI app & middleware"
         }
       ]
@@ -102,8 +102,8 @@
       "sublabel": "src/api/auth.py",
       "tag": "verify_service_bearer",
       "icon": "security",
-      "pos": [500, 180],
-      "size": [140, 64],
+      "pos": [480, 180],
+      "size": [130, 64],
       "sources": [
         {
           "path": "src/api/auth.py",
@@ -118,52 +118,52 @@
       "type": "backend",
       "label": "AI API Router",
       "sublabel": "src/api/routes.py",
-      "tag": "POST /tailor + /stream",
+      "tag": "POST /generate/stream",
       "icon": "backend",
-      "pos": [740, 180],
-      "size": [150, 64],
+      "pos": [690, 180],
+      "size": [140, 64],
       "sources": [
         {
           "path": "src/api/routes.py",
-          "line": 43,
-          "end_line": 85,
-          "label": "tailor endpoints"
+          "line": 17,
+          "end_line": 34,
+          "label": "generate stream endpoint"
         }
       ]
     },
     {
       "id": "service",
       "type": "backend",
-      "label": "Tailor Service",
+      "label": "Generate Service",
       "sublabel": "src/api/service.py",
-      "tag": "Sync & SSE Task Queue",
+      "tag": "Async Queue & SSE Stream",
       "icon": "backend",
-      "pos": [990, 180],
-      "size": [160, 64],
+      "pos": [910, 180],
+      "size": [150, 64],
       "sources": [
         {
           "path": "src/api/service.py",
-          "line": 19,
-          "end_line": 72,
-          "label": "TailorService"
+          "line": 18,
+          "end_line": 86,
+          "label": "GenerateService"
         }
       ]
     },
     {
       "id": "pipeline",
       "type": "backend",
-      "label": "Agent Pipeline",
-      "sublabel": "src/pipeline/agent_orchestrator.py",
-      "tag": "9-Step Core Engine",
+      "label": "Generation Pipeline",
+      "sublabel": "generation/orchestrator.py",
+      "tag": "8-Step One-Shot Engine",
       "icon": "active",
-      "pos": [990, 310],
-      "size": [160, 64],
+      "pos": [910, 310],
+      "size": [150, 64],
       "sources": [
         {
-          "path": "src/pipeline/agent_orchestrator.py",
-          "line": 43,
-          "end_line": 85,
-          "label": "AgentTailorPipeline"
+          "path": "src/pipeline/generation/orchestrator.py",
+          "line": 23,
+          "end_line": 156,
+          "label": "CvGenerationPipeline"
         }
       ]
     },
@@ -174,8 +174,8 @@
       "sublabel": "src/llm/factory.py",
       "tag": "Gemini 2.0 / Mock",
       "icon": "cloud",
-      "pos": [740, 310],
-      "size": [150, 64],
+      "pos": [690, 310],
+      "size": [140, 64],
       "sources": [
         {
           "path": "src/llm/factory.py",
@@ -194,7 +194,7 @@
     },
     {
       "kind": "region",
-      "label": "Core AI Pipeline & Engine",
+      "label": "Core AI Generation Engine",
       "wraps": ["pipeline", "llm"]
     }
   ],
@@ -215,14 +215,14 @@
       "id": "client-to-server",
       "from": "client",
       "to": "server",
-      "label": "HTTP POST",
+      "label": "POST /generate/stream",
       "variant": "emphasis"
     },
     {
       "id": "server-to-auth",
       "from": "server",
       "to": "auth",
-      "label": "Bearer guard",
+      "label": "Bearer check",
       "variant": "security"
     },
     {
@@ -235,7 +235,7 @@
       "id": "routes-to-service",
       "from": "routes",
       "to": "service",
-      "label": "exec service"
+      "label": "exec stream"
     },
     {
       "id": "service-to-pipeline",
@@ -248,6 +248,13 @@
       "from": "pipeline",
       "to": "llm",
       "label": "LLM prompt"
+    },
+    {
+      "id": "service-to-client",
+      "from": "service",
+      "to": "client",
+      "label": "SSE stream",
+      "variant": "dashed"
     }
   ],
   "cards": [
@@ -257,7 +264,7 @@
       "items": [
         "src/main.py starts Uvicorn ASGI server binding to AI_PORT (default 8001)",
         "src/config.py loads and validates environment variables with Pydantic BaseSettings",
-        "src/api/server.py registers CORSMiddleware and an HTTP middleware enforcing 10MB body limit and timing access logs"
+        "src/api/server.py registers CORSMiddleware, health probes, and 10MB body limit"
       ]
     },
     {
@@ -265,17 +272,17 @@
       "title": "Service Bearer Security & API Routers",
       "items": [
         "src/api/auth.py exposes verify_service_bearer FastAPI dependency checking Authorization Bearer token against AI_SECRET_KEY",
-        "src/api/routes.py handles POST /v1/ai/tailor for synchronous diff reports and POST /v1/ai/tailor/stream for real-time SSE streaming",
-        "Validates CanonicalTailorRequest (Render contract) and provides backward compatibility for legacy CvInput envelopes"
+        "src/api/routes.py handles backend-only POST /v1/ai/generate/stream with StreamingResponse",
+        "Validates GenerateCvRequest payload containing job description, candidate profile, and Render template settings"
       ]
     },
     {
       "dot": "emerald",
-      "title": "Tailor Service & Core Orchestrator",
+      "title": "Generate Service & Core Orchestrator",
       "items": [
-        "src/api/service.py (TailorService) manages background asyncio tasks, event buffering, and client disconnect cancellation",
-        "Guarantees standard SSE envelopes ({type, runId, sequence, data}) with exactly one terminal 'completed' or 'failed' event",
-        "Dispatches work to AgentTailorPipeline across candidate evidence extraction, deterministic guards, and Gemini LLM provider"
+        "src/api/service.py (GenerateService) manages background asyncio tasks, event buffering, and client disconnect cancellation",
+        "Guarantees standard SSE envelopes ({type, requestId, generationId, sequence, data}) across progress, gap_report, and partial_update",
+        "Dispatches work to CvGenerationPipeline and emits exactly one terminal event: needs_input, done, or error"
       ]
     }
   ]

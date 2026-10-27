@@ -380,44 +380,44 @@
   <script>
     const DIAGRAMS = [
   {
-    "id": "cv-api",
-    "title": "CV AI Agent - API Subsystem Architecture & Request Flow",
-    "category": "architecture",
-    "type": "ARCHITECTURE",
-    "file": "./cv-api.html",
-    "desc": "FastAPI gateway, Bearer authentication guard, route handlers, and TailorService task management."
-  },
-  {
     "id": "cv-system",
     "title": "CV AI Agent System Architecture",
     "category": "architecture",
     "type": "ARCHITECTURE",
     "file": "./cv-system.html",
-    "desc": "End-to-end system topology across API gateway, autonomous agent core, deterministic guards, RAG, and LLM."
+    "desc": "End-to-end stateless system topology across FastAPI gateway, generation pipeline, candidate evidence store, deterministic guards, static RAG, and LLM provider."
   },
   {
     "id": "cv-pipeline",
-    "title": "9-Step CV Tailoring Pipeline",
+    "title": "One-Shot CV Generation Pipeline",
     "category": "workflow",
     "type": "WORKFLOW",
     "file": "./cv-pipeline.html",
-    "desc": "Canonical document validation, evidence extraction, JD analysis, STAR rewriter, 0% fabrication guard, and semantic patching."
+    "desc": "8-step one-shot generation workflow: gap detection, evidence isolation, JD analysis, static RAG, section writers, 0% fabrication guard, and RenderCV validation."
   },
   {
     "id": "cv-sequence",
-    "title": "Real-time SSE Optimization Sequence",
+    "title": "Real-Time SSE Generation Sequence",
     "category": "architecture",
     "type": "SEQUENCE",
     "file": "./cv-sequence.html",
-    "desc": "Interactive sequence lifecycle of client requests, Bearer verification, async queue buffering, and Server-Sent Events delivery."
+    "desc": "Interactive SSE sequence lifecycle: Render Backend request, service Bearer auth, asyncio queue buffering, guarded section generation, and terminal done delivery."
+  },
+  {
+    "id": "cv-api",
+    "title": "API Subsystem Architecture & Request Flow",
+    "category": "architecture",
+    "type": "ARCHITECTURE",
+    "file": "./cv-api.html",
+    "desc": "FastAPI server bootstrap, Bearer authentication guard, route streaming handlers, and GenerateService async task management."
   },
   {
     "id": "cv-modules",
-    "title": "CV AI Agent Codebase Hierarchy",
+    "title": "Codebase Hierarchy Tree",
     "category": "architecture",
     "type": "TREE",
     "file": "./cv-modules.html",
-    "desc": "Complete directory decomposition of active modules in src/ (api, core, guard, pipeline, schemas, knowledge, llm)."
+    "desc": "Complete directory decomposition of active codebase modules in src/ (api, constants, core, guard, knowledge, llm, pipeline, schemas, yaml_layer)."
   }
 ];
 

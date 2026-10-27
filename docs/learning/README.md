@@ -8,10 +8,10 @@ This guide follows the production flow from request contract to saved canonical 
 4. [LLM provider and typed writers](04-llm-provider-and-prompting.md)
 5. [RAG guidance](05-rag-fundamentals.md)
 6. [Guardrails and evaluation](06-guardrails-and-evaluation.md)
-7. [Render integration](07-render-integration.md)
+7. [Consumer integration](07-render-integration.md)
 8. [Implementation workbook](08-implementation-workbook.md)
 
-After reading, you should be able to explain why the backend owns state, why candidate evidence is isolated from JD/RAG, how fallbacks produce a truthful partial result, and why validation happens before persistence.
+After reading, you should be able to explain why the AI service owns durable job state, why candidate evidence is isolated from JD/RAG, how fallbacks produce a truthful partial result, and why validation happens before persistence.
 
 Run the regression suite from the repository root with `python -m pytest -q`.
 Canonical fixtures are stored locally in [tests/fixtures](../../tests/fixtures/README.md).

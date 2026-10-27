@@ -9,7 +9,8 @@ def test_health_endpoints_and_docs_redirect():
     client = TestClient(app)
     assert client.get("/health").json()["status"] == "ok"
     assert client.get("/health/live").json()["status"] == "live"
-    assert client.get("/health/ready").json()["status"] == "ready"
+    # Liveness does not require a DB; readiness must not falsely report success.
+    assert client.get("/health/ready").status_code == 503
     response = client.get("/", follow_redirects=False)
     assert response.status_code in [302, 307]
     assert "/docs" in response.headers["location"]

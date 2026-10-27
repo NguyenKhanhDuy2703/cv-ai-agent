@@ -2,66 +2,74 @@
   "schema_version": 2,
   "diagram_type": "workflow",
   "meta": {
-    "title": "9-Step CV Tailoring Pipeline Diagram",
-    "subtitle": "Canonical Document Validation, Evidence Extraction, Deterministic Guards, and Semantic Patching",
-    "output": ".archify/cv-pipeline.html",
+    "title": "Stateless One-Shot Canonical CV Generation Pipeline Diagram",
+    "subtitle": "Gap Detection, Candidate Evidence Isolation, Static RAG, Typed Section Writers, Deterministic Guards, and RenderCV Validation",
+    "output": "archify-architecture/cv-pipeline.html",
     "visual_preset": "signal-flow",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "63488c91d684ee6477cd70a8e26deff9c43ca1c7"
+      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
     }
   },
   "lanes": [
-    { "id": "gateway", "label": "Client & Document Gateway" },
-    { "id": "agent", "label": "Autonomous Orchestrator" },
-    { "id": "ai", "label": "AI Generation & Knowledge" },
+    { "id": "gateway", "label": "Client & Gateway" },
+    { "id": "agent", "label": "Pipeline Orchestrator" },
+    { "id": "ai", "label": "Knowledge & Typed Writers" },
     { "id": "safety", "label": "Deterministic Guard", "variant": "exception" }
   ],
   "phases": [
     { "id": "phase-intake", "label": "1. Intake & Analysis", "fromCol": 0, "toCol": 1 },
-    { "id": "phase-generation", "label": "2. Planning & STAR Writing", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
-    { "id": "phase-delivery", "label": "3. Guard & Patch Delivery", "fromCol": 4, "toCol": 5, "variant": "security" }
+    { "id": "phase-generation", "label": "2. Planning & Writing", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "phase-delivery", "label": "3. Guard & Delivery", "fromCol": 4, "toCol": 5, "variant": "security" }
   ],
   "mainPath": [
-    "doc_in",
-    "validator",
+    "req_in",
+    "gaps",
     "evidence",
     "jd_analyzer",
     "retriever",
     "planner",
-    "writer",
+    "writers",
     "guard",
-    "patch_builder",
-    "patch_applier",
-    "report_out"
+    "builder",
+    "validator",
+    "result_out"
   ],
   "nodes": [
     {
-      "id": "doc_in",
+      "id": "req_in",
       "lane": "gateway",
       "col": 0,
       "type": "external",
       "label": "1. Ingestion",
-      "sublabel": "CanonicalRequest",
-      "tag": "JSON Payload"
+      "sublabel": "GenerateCvRequest",
+      "tag": "JD + Profile JSON",
+      "sources": [
+        {
+          "path": "src/api/routes.py",
+          "line": 17,
+          "end_line": 34,
+          "label": "generate stream endpoint"
+        }
+      ]
     },
     {
-      "id": "validator",
+      "id": "gaps",
       "lane": "agent",
       "col": 0,
       "type": "backend",
-      "label": "1b. Validator",
-      "sublabel": "render_cv_schema",
-      "tag": "Strict Validation",
+      "label": "1b. Gap Detection",
+      "sublabel": "detect_gaps()",
+      "tag": "Required Check",
       "sources": [
         {
-          "path": "src/schemas/canonical_validator.py",
-          "line": 40,
-          "end_line": 70,
-          "label": "validate_canonical_document"
+          "path": "src/pipeline/generation/gaps.py",
+          "line": 10,
+          "end_line": 74,
+          "label": "detect_gaps"
         }
       ]
     },
@@ -70,15 +78,15 @@
       "lane": "agent",
       "col": 1,
       "type": "backend",
-      "label": "2. Evidence",
-      "sublabel": "Bóc tách Ground Truth",
-      "tag": "EvidenceStore IDs",
+      "label": "2. Evidence Store",
+      "sublabel": "Candidate Facts",
+      "tag": "Isolated Facts",
       "sources": [
         {
-          "path": "src/core/evidence_extractor.py",
-          "line": 1,
-          "end_line": 35,
-          "label": "extract_candidate_evidence"
+          "path": "src/pipeline/generation/evidence.py",
+          "line": 9,
+          "end_line": 65,
+          "label": "build_candidate_evidence"
         }
       ]
     },
@@ -88,13 +96,13 @@
       "col": 1,
       "type": "backend",
       "label": "3. JD Analyzer",
-      "sublabel": "Seniority, skills",
-      "tag": "LLM JD Analysis",
+      "sublabel": "Seniority & Skills",
+      "tag": "Structured Output",
       "sources": [
         {
           "path": "src/core/jd_analyzer.py",
-          "line": 1,
-          "end_line": 30,
+          "line": 15,
+          "end_line": 120,
           "label": "JDAnalyzer"
         }
       ]
@@ -104,15 +112,15 @@
       "lane": "ai",
       "col": 2,
       "type": "database",
-      "label": "4. Knowledge RAG",
-      "sublabel": "Industry Packs",
-      "tag": "Domain Context",
+      "label": "4. Static RAG",
+      "sublabel": "KnowledgeCorpus",
+      "tag": "BM25 Retrieval",
       "sources": [
         {
-          "path": "src/knowledge/retriever_protocol.py",
-          "line": 1,
-          "end_line": 25,
-          "label": "KnowledgeRetriever"
+          "path": "src/knowledge/static_retriever.py",
+          "line": 14,
+          "end_line": 106,
+          "label": "StaticKnowledgeRetriever"
         }
       ]
     },
@@ -121,32 +129,32 @@
       "lane": "agent",
       "col": 2,
       "type": "backend",
-      "label": "5. Plan Entries",
-      "sublabel": "Check lockedPaths",
-      "tag": "Lock Gate",
+      "label": "5. Plan Sections",
+      "sublabel": "Section Order",
+      "tag": "Generation Plan",
       "sources": [
         {
-          "path": "src/pipeline/agent_orchestrator.py",
-          "line": 118,
-          "end_line": 145,
-          "label": "experience_traversal"
+          "path": "src/pipeline/generation/plan.py",
+          "line": 6,
+          "end_line": 30,
+          "label": "build_generation_plan"
         }
       ]
     },
     {
-      "id": "writer",
+      "id": "writers",
       "lane": "ai",
       "col": 3,
       "type": "backend",
-      "label": "6. STAR Writer",
-      "sublabel": "STAR/XYZ Formula",
-      "tag": "Evidence IDs",
+      "label": "6. Typed Writers",
+      "sublabel": "Summary, Exp, Project",
+      "tag": "Evidence Citations",
       "sources": [
         {
-          "path": "src/core/experience_writer.py",
-          "line": 1,
-          "end_line": 35,
-          "label": "ExperienceWriter"
+          "path": "src/pipeline/generation/writers.py",
+          "line": 14,
+          "end_line": 77,
+          "label": "Section Writers"
         }
       ]
     },
@@ -155,88 +163,95 @@
       "lane": "safety",
       "col": 4,
       "type": "security",
-      "label": "7. Guard Check",
-      "sublabel": "0% Fabrication",
-      "tag": "Deterministic",
+      "label": "7. Fact Guard",
+      "sublabel": "DeterministicGuard",
+      "tag": "0% Fabrication",
       "sources": [
         {
           "path": "src/guard/deterministic_guard.py",
           "line": 55,
-          "end_line": 95,
+          "end_line": 251,
           "label": "DeterministicGuard"
         }
       ]
     },
     {
-      "id": "patch_builder",
+      "id": "builder",
       "lane": "agent",
       "col": 4,
       "type": "backend",
-      "label": "8. Patch Builder",
-      "sublabel": "beforeHash lock",
-      "tag": "SemanticPatch",
+      "label": "8. Canonical Builder",
+      "sublabel": "Template Merging",
+      "tag": "Document Assembly",
       "sources": [
         {
-          "path": "src/schemas/canonical_dto.py",
-          "line": 36,
-          "end_line": 55,
-          "label": "SemanticPatch"
+          "path": "src/pipeline/generation/builder.py",
+          "line": 8,
+          "end_line": 106,
+          "label": "build_canonical_document"
         }
       ]
     },
     {
-      "id": "patch_applier",
+      "id": "validator",
       "lane": "agent",
       "col": 5,
       "type": "backend",
-      "label": "9. Patch Applier",
-      "sublabel": "Apply & Re-check",
-      "tag": "RFC-6902 Patch",
+      "label": "8b. Validator",
+      "sublabel": "RenderCV Schema",
+      "tag": "assert_canonical",
       "sources": [
         {
-          "path": "src/schemas/patch_applier.py",
-          "line": 1,
-          "end_line": 40,
-          "label": "apply_semantic_patches"
+          "path": "src/schemas/canonical_validator.py",
+          "line": 28,
+          "end_line": 117,
+          "label": "assert_canonical_document"
         }
       ]
     },
     {
-      "id": "report_out",
+      "id": "result_out",
       "lane": "gateway",
       "col": 5,
-      "type": "backend",
-      "label": "9b. Diff Report",
-      "sublabel": "Summary & SSE done",
-      "tag": "Diff Report",
+      "type": "external",
+      "label": "9. Stream Result",
+      "sublabel": "SSE done / needs_input",
+      "tag": "Terminal Event",
       "sources": [
         {
-          "path": "src/schemas/canonical_dto.py",
-          "line": 56,
-          "end_line": 63,
-          "label": "TailorDiffReport"
+          "path": "src/api/service.py",
+          "line": 18,
+          "end_line": 86,
+          "label": "GenerateService"
         }
       ]
     }
   ],
   "edges": [
     {
-      "id": "e-doc-validator",
-      "from": "doc_in",
-      "to": "validator",
+      "id": "e-req-gaps",
+      "from": "req_in",
+      "to": "gaps",
       "variant": "emphasis"
     },
     {
-      "id": "e-validator-evidence",
-      "from": "validator",
+      "id": "e-gaps-evidence",
+      "from": "gaps",
       "to": "evidence",
-      "label": "valid JSON"
+      "label": "valid input"
+    },
+    {
+      "id": "e-gaps-terminal",
+      "from": "gaps",
+      "to": "result_out",
+      "label": "missing data",
+      "variant": "dashed"
     },
     {
       "id": "e-evidence-jd",
       "from": "evidence",
       "to": "jd_analyzer",
-      "label": "evidence store"
+      "label": "candidate facts"
     },
     {
       "id": "e-jd-retriever",
@@ -251,62 +266,65 @@
       "label": "domain context"
     },
     {
-      "id": "e-planner-writer",
+      "id": "e-planner-writers",
       "from": "planner",
-      "to": "writer",
-      "label": "unlocked entries",
+      "to": "writers",
+      "label": "ordered sections",
       "variant": "emphasis"
     },
     {
-      "id": "e-writer-guard",
-      "from": "writer",
+      "id": "e-writers-guard",
+      "from": "writers",
       "to": "guard",
-      "label": "proposed bullet",
+      "label": "proposed bullets",
       "variant": "security"
     },
     {
-      "id": "e-guard-patch",
+      "id": "e-guard-builder",
       "from": "guard",
-      "to": "patch_builder",
-      "label": "passed 0% check",
+      "to": "builder",
+      "label": "verified facts",
       "variant": "emphasis"
     },
     {
-      "id": "e-patch-applier",
-      "from": "patch_builder",
-      "to": "patch_applier",
-      "label": "accepted patches"
+      "id": "e-builder-validator",
+      "from": "builder",
+      "to": "validator",
+      "label": "canonical json"
     },
     {
-      "id": "e-applier-report",
-      "from": "patch_applier",
-      "to": "report_out",
+      "id": "e-validator-result",
+      "from": "validator",
+      "to": "result_out",
+      "label": "done event",
       "variant": "emphasis"
     }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "Ground-Truth Evidence & JD Analysis",
+      "title": "Intake, Gap Detection & Evidence Isolation",
       "items": [
-        "Bước 1 & 2: Thẩm định cấu trúc JSON CV và bóc tách toàn bộ thành tích, con số của ứng viên thành EvidenceStore",
-        "Bước 3 & 4: LLM phân tích chuyên sâu JD (seniority, kỹ năng chính/phụ) và nạp tri thức ngữ cảnh từ Industry Packs"
+        "Normalize request and execute detect_gaps(); missing required items returns terminal needs_input immediately without invoking LLM",
+        "Candidate Profile is the sole source of candidate facts, preserved in an immutable EvidenceStore with stable client IDs"
       ]
     },
     {
       "dot": "rose",
-      "title": "Locking Gate & Deterministic Verification",
+      "title": "JD Analysis, Static RAG & Typed Writers",
       "items": [
-        "Bước 5: Kiểm tra lockedPaths để bỏ qua không sửa đổi các phần người dùng đã khóa",
-        "Bước 6 & 7: Viết lại bullet theo công thức STAR và đưa qua DeterministicGuard kiểm tra 0% sai số số liệu"
+        "JDAnalyzer extracts seniority, role family, required/preferred skills and keywords with deterministic fallback",
+        "StaticKnowledgeRetriever performs BM25 retrieval across vetted industry packs for summary, experience, and project phrasing",
+        "Typed section writers (SummaryWriter, ExperienceWriter, ProjectWriter) produce structured proposals citing evidence IDs"
       ]
     },
     {
       "dot": "emerald",
-      "title": "Semantic Patching & Diff Report Delivery",
+      "title": "Deterministic 0% Guard & Canonical Compliance",
       "items": [
-        "Bước 8: Đóng gói SemanticPatch chuẩn RFC-6902 có gắn beforeHash bảo vệ tránh conflict",
-        "Bước 9: Áp dụng bản vá vào cây dữ liệu, thẩm định lại toàn bộ tài liệu và phát sinh TailorDiffReport"
+        "DeterministicGuard verifies numbers, dates, technologies, and metrics against cited evidence IDs with zero tolerance",
+        "Ungrounded claims automatically fall back to original candidate facts, guaranteeing a valid partial result",
+        "Canonical document complies strictly with RenderCV schema and is serialized to YAML before SSE completion"
       ]
     }
   ]

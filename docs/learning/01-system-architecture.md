@@ -1,15 +1,20 @@
 # 01 — System architecture
 
-The browser creates a one-shot generation job on Render Backend and separately subscribes to its persisted events. Backend owns the immutable input snapshot, deadline, status and saved CV.
+The AI service owns durable generation state in a dedicated PostgreSQL database.
+API and worker are separate processes; no browser/backend stream owns execution.
 
 ```text
-Frontend -> POST /v1/cv-generations
-Frontend -> GET /v1/cv-generations/{id}/events (replayable SSE)
-Backend  -> POST /v1/ai/generate/stream (service Bearer token)
-Agent    -> progress/gaps/partial/result
-Backend  -> validate canonical document -> create Cv -> add cvId to done
+Consumer -> POST /v1/ai/generations -> persisted QUEUED job
+Worker -> claim/lease -> pipeline -> atomic result + terminal event
+Consumer -> GET status / events / result
 ```
 
-Style ownership stays in Render: backend passes `design`, `locale`, and `settings` from the chosen template. The LLM never chooses presentation settings.
+The existing POST /v1/ai/generate/stream is an adapter over the same store. Its
+contract remains unchanged, while disconnect no longer cancels processing.
+Consumer applications own their users and final CV records. They pass design,
+locale and settings; the LLM never chooses style. AI neither accesses Render's
+storage nor enforces a Render user's active-job lock. It deduplicates requestId
+for the one authenticated consumer and bounds execution through worker concurrency.
 
-The database allows one QUEUED/RUNNING job per owner. requestId prevents duplicate jobs. Workers claim jobs atomically and deadlines release stuck jobs. Browser disconnect does not cancel generation; Last-Event-ID resumes observation.
+Use API/worker migrations only against AI storage. Core generation/CLI remain
+independent of PostgreSQL. See [runtime instructions](../../README.md).

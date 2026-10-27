@@ -3,14 +3,14 @@
   "diagram_type": "tree",
   "meta": {
     "title": "CV AI Agent Codebase Hierarchy Diagram",
-    "subtitle": "Complete Module & File Hierarchy across API, Core AI, Safety Guards, Schemas, Knowledge, and LLM Providers",
-    "output": ".archify/cv-modules.html",
+    "subtitle": "Complete Module & File Hierarchy across API, Generation Pipeline, Core AI, Safety Guards, Schemas, Knowledge, and LLM Providers",
+    "output": "archify-architecture/cv-modules.html",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/NguyenKhanhDuy2703/cv-ai-agent.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "63488c91d684ee6477cd70a8e26deff9c43ca1c7"
+      "revision": "f37d777ff952b9b453d70b1f843de01fa7aa0a53"
     }
   },
   "layout": {
@@ -20,24 +20,24 @@
     {
       "id": "root",
       "label": "cv-ai-agent",
-      "sublabel": "Autonomous AI Service"
+      "sublabel": "Canonical CV AI Service"
     },
     {
       "id": "src_api",
       "parent": "root",
       "label": "src/api",
-      "sublabel": "HTTP Server & Gateway"
+      "sublabel": "Streaming Gateway"
     },
     {
       "id": "api_server",
       "parent": "src_api",
       "label": "server.py",
-      "sublabel": "FastAPI app, CORS, 10MB limit",
+      "sublabel": "CORS & 10MB Body Limit",
       "sources": [
         {
           "path": "src/api/server.py",
           "line": 15,
-          "end_line": 57,
+          "end_line": 80,
           "label": "server"
         }
       ]
@@ -60,12 +60,12 @@
       "id": "api_routes",
       "parent": "src_api",
       "label": "routes.py",
-      "sublabel": "POST /tailor & /stream",
+      "sublabel": "POST /generate/stream",
       "sources": [
         {
           "path": "src/api/routes.py",
-          "line": 43,
-          "end_line": 85,
+          "line": 17,
+          "end_line": 34,
           "label": "routes"
         }
       ]
@@ -74,13 +74,33 @@
       "id": "api_service",
       "parent": "src_api",
       "label": "service.py",
-      "sublabel": "TailorService & SSE Queue",
+      "sublabel": "GenerateService & SSE",
       "sources": [
         {
           "path": "src/api/service.py",
-          "line": 19,
-          "end_line": 72,
+          "line": 18,
+          "end_line": 86,
           "label": "service"
+        }
+      ]
+    },
+    {
+      "id": "src_constants",
+      "parent": "root",
+      "label": "src/constants",
+      "sublabel": "Constants & Enums"
+    },
+    {
+      "id": "const_gen",
+      "parent": "src_constants",
+      "label": "generation.py",
+      "sublabel": "Progress & RAG Config",
+      "sources": [
+        {
+          "path": "src/constants/generation.py",
+          "line": 1,
+          "end_line": 16,
+          "label": "constants"
         }
       ]
     },
@@ -88,18 +108,18 @@
       "id": "src_core",
       "parent": "root",
       "label": "src/core",
-      "sublabel": "AI Processing Units"
+      "sublabel": "Shared AI Core"
     },
     {
       "id": "core_evidence",
       "parent": "src_core",
       "label": "evidence_extractor.py",
-      "sublabel": "Ground-Truth EvidenceStore",
+      "sublabel": "Fact Extraction & IDs",
       "sources": [
         {
           "path": "src/core/evidence_extractor.py",
-          "line": 1,
-          "end_line": 35,
+          "line": 8,
+          "end_line": 63,
           "label": "evidence"
         }
       ]
@@ -112,8 +132,8 @@
       "sources": [
         {
           "path": "src/core/jd_analyzer.py",
-          "line": 1,
-          "end_line": 30,
+          "line": 15,
+          "end_line": 120,
           "label": "jd"
         }
       ]
@@ -122,12 +142,12 @@
       "id": "core_writer",
       "parent": "src_core",
       "label": "experience_writer.py",
-      "sublabel": "STAR/XYZ Experience Writer",
+      "sublabel": "STAR Experience Writer",
       "sources": [
         {
           "path": "src/core/experience_writer.py",
-          "line": 1,
-          "end_line": 35,
+          "line": 23,
+          "end_line": 161,
           "label": "writer"
         }
       ]
@@ -142,109 +162,13 @@
       "id": "guard_det",
       "parent": "src_guard",
       "label": "deterministic_guard.py",
-      "sublabel": "0% Metric Tolerance & Fluff Filter",
+      "sublabel": "0% Fabrication Tolerance",
       "sources": [
         {
           "path": "src/guard/deterministic_guard.py",
           "line": 55,
-          "end_line": 95,
+          "end_line": 251,
           "label": "deterministic_guard"
-        }
-      ]
-    },
-    {
-      "id": "guard_anti",
-      "parent": "src_guard",
-      "label": "anti_hallucination.py",
-      "sublabel": "Semantic Verification",
-      "sources": [
-        {
-          "path": "src/guard/anti_hallucination.py",
-          "line": 1,
-          "end_line": 30,
-          "label": "anti_hallucination"
-        }
-      ]
-    },
-    {
-      "id": "src_pipeline",
-      "parent": "root",
-      "label": "src/pipeline",
-      "sublabel": "Orchestrator Pipeline"
-    },
-    {
-      "id": "pipe_agent",
-      "parent": "src_pipeline",
-      "label": "agent_orchestrator.py",
-      "sublabel": "9-Step Canonical Workflow",
-      "sources": [
-        {
-          "path": "src/pipeline/agent_orchestrator.py",
-          "line": 43,
-          "end_line": 85,
-          "label": "agent_orchestrator"
-        }
-      ]
-    },
-    {
-      "id": "pipe_prompts",
-      "parent": "src_pipeline",
-      "label": "prompts.py",
-      "sublabel": "STAR templates & Few-shots",
-      "sources": [
-        {
-          "path": "src/pipeline/prompts.py",
-          "line": 1,
-          "end_line": 35,
-          "label": "prompts"
-        }
-      ]
-    },
-    {
-      "id": "src_schemas",
-      "parent": "root",
-      "label": "src/schemas",
-      "sublabel": "Contracts & Patching"
-    },
-    {
-      "id": "schema_dto",
-      "parent": "src_schemas",
-      "label": "canonical_dto.py",
-      "sublabel": "CanonicalRequest & SemanticPatch",
-      "sources": [
-        {
-          "path": "src/schemas/canonical_dto.py",
-          "line": 25,
-          "end_line": 63,
-          "label": "dto"
-        }
-      ]
-    },
-    {
-      "id": "schema_val",
-      "parent": "src_schemas",
-      "label": "canonical_validator.py",
-      "sublabel": "validate_canonical_document",
-      "sources": [
-        {
-          "path": "src/schemas/canonical_validator.py",
-          "line": 40,
-          "end_line": 70,
-          "label": "validator"
-        }
-      ]
-    },
-    {
-      "id": "schema_patch",
-      "parent": "src_schemas",
-      "label": "patch_applier.py",
-      "sublabel": "Lock-Aware Patch Applier",
-      "sources": [
-        {
-          "path": "src/schemas/patch_applier.py",
-          "line": 1,
-          "end_line": 40,
-          "label": "patch_applier"
         }
       ]
     },
@@ -252,19 +176,61 @@
       "id": "src_knowledge",
       "parent": "root",
       "label": "src/knowledge",
-      "sublabel": "RAG & Domain Packs"
+      "sublabel": "RAG & Static Corpus"
     },
     {
-      "id": "know_retriever",
+      "id": "know_corpus",
+      "parent": "src_knowledge",
+      "label": "corpus.py",
+      "sublabel": "Industry Knowledge Packs",
+      "sources": [
+        {
+          "path": "src/knowledge/corpus.py",
+          "line": 17,
+          "end_line": 275,
+          "label": "corpus"
+        }
+      ]
+    },
+    {
+      "id": "know_protocol",
       "parent": "src_knowledge",
       "label": "retriever_protocol.py",
       "sublabel": "KnowledgeRetriever Protocol",
       "sources": [
         {
           "path": "src/knowledge/retriever_protocol.py",
-          "line": 1,
-          "end_line": 25,
+          "line": 12,
+          "end_line": 47,
+          "label": "protocol"
+        }
+      ]
+    },
+    {
+      "id": "know_retriever",
+      "parent": "src_knowledge",
+      "label": "static_retriever.py",
+      "sublabel": "BM25 Static Retriever",
+      "sources": [
+        {
+          "path": "src/knowledge/static_retriever.py",
+          "line": 14,
+          "end_line": 106,
           "label": "retriever"
+        }
+      ]
+    },
+    {
+      "id": "know_null",
+      "parent": "src_knowledge",
+      "label": "null_retriever.py",
+      "sublabel": "Fallback Null Retriever",
+      "sources": [
+        {
+          "path": "src/knowledge/null_retriever.py",
+          "line": 6,
+          "end_line": 21,
+          "label": "null_retriever"
         }
       ]
     },
@@ -275,6 +241,20 @@
       "sublabel": "LLM Providers"
     },
     {
+      "id": "llm_factory",
+      "parent": "src_llm",
+      "label": "factory.py",
+      "sublabel": "Provider Factory",
+      "sources": [
+        {
+          "path": "src/llm/factory.py",
+          "line": 9,
+          "end_line": 25,
+          "label": "factory"
+        }
+      ]
+    },
+    {
       "id": "llm_gemini",
       "parent": "src_llm",
       "label": "gemini_provider.py",
@@ -282,8 +262,8 @@
       "sources": [
         {
           "path": "src/llm/gemini_provider.py",
-          "line": 1,
-          "end_line": 35,
+          "line": 18,
+          "end_line": 271,
           "label": "gemini"
         }
       ]
@@ -292,13 +272,213 @@
       "id": "llm_mock",
       "parent": "src_llm",
       "label": "mock_provider.py",
-      "sublabel": "Deterministic Mock for Tests",
+      "sublabel": "Deterministic Test Mock",
       "sources": [
         {
           "path": "src/llm/mock_provider.py",
-          "line": 1,
-          "end_line": 30,
+          "line": 10,
+          "end_line": 63,
           "label": "mock"
+        }
+      ]
+    },
+    {
+      "id": "src_pipeline",
+      "parent": "root",
+      "label": "src/pipeline",
+      "sublabel": "Generation Subsystem"
+    },
+    {
+      "id": "pipe_orch",
+      "parent": "src_pipeline",
+      "label": "orchestrator.py",
+      "sublabel": "CvGenerationPipeline",
+      "sources": [
+        {
+          "path": "src/pipeline/generation/orchestrator.py",
+          "line": 23,
+          "end_line": 156,
+          "label": "orchestrator"
+        }
+      ]
+    },
+    {
+      "id": "pipe_builder",
+      "parent": "src_pipeline",
+      "label": "builder.py",
+      "sublabel": "Canonical Doc Builder",
+      "sources": [
+        {
+          "path": "src/pipeline/generation/builder.py",
+          "line": 8,
+          "end_line": 106,
+          "label": "builder"
+        }
+      ]
+    },
+    {
+      "id": "pipe_evidence",
+      "parent": "src_pipeline",
+      "label": "evidence.py",
+      "sublabel": "Candidate EvidenceStore",
+      "sources": [
+        {
+          "path": "src/pipeline/generation/evidence.py",
+          "line": 9,
+          "end_line": 65,
+          "label": "evidence"
+        }
+      ]
+    },
+    {
+      "id": "pipe_gaps",
+      "parent": "src_pipeline",
+      "label": "gaps.py",
+      "sublabel": "detect_gaps() check",
+      "sources": [
+        {
+          "path": "src/pipeline/generation/gaps.py",
+          "line": 10,
+          "end_line": 74,
+          "label": "gaps"
+        }
+      ]
+    },
+    {
+      "id": "pipe_plan",
+      "parent": "src_pipeline",
+      "label": "plan.py",
+      "sublabel": "Generation Plan",
+      "sources": [
+        {
+          "path": "src/pipeline/generation/plan.py",
+          "line": 6,
+          "end_line": 30,
+          "label": "plan"
+        }
+      ]
+    },
+    {
+      "id": "pipe_sections",
+      "parent": "src_pipeline",
+      "label": "sections.py",
+      "sublabel": "SectionGenerator",
+      "sources": [
+        {
+          "path": "src/pipeline/generation/sections.py",
+          "line": 27,
+          "end_line": 139,
+          "label": "sections"
+        }
+      ]
+    },
+    {
+      "id": "pipe_writers",
+      "parent": "src_pipeline",
+      "label": "writers.py",
+      "sublabel": "Summary & Project Writers",
+      "sources": [
+        {
+          "path": "src/pipeline/generation/writers.py",
+          "line": 14,
+          "end_line": 77,
+          "label": "writers"
+        }
+      ]
+    },
+    {
+      "id": "src_schemas",
+      "parent": "root",
+      "label": "src/schemas",
+      "sublabel": "Contracts & Validator"
+    },
+    {
+      "id": "schema_gen",
+      "parent": "src_schemas",
+      "label": "generation.py",
+      "sublabel": "GenerateCvRequest & Result",
+      "sources": [
+        {
+          "path": "src/schemas/generation.py",
+          "line": 19,
+          "end_line": 127,
+          "label": "generation_schema"
+        }
+      ]
+    },
+    {
+      "id": "schema_val",
+      "parent": "src_schemas",
+      "label": "canonical_validator.py",
+      "sublabel": "assert_canonical_document",
+      "sources": [
+        {
+          "path": "src/schemas/canonical_validator.py",
+          "line": 28,
+          "end_line": 117,
+          "label": "validator"
+        }
+      ]
+    },
+    {
+      "id": "schema_input",
+      "parent": "src_schemas",
+      "label": "cv_input.py",
+      "sublabel": "Candidate Profile DTO",
+      "sources": [
+        {
+          "path": "src/schemas/cv_input.py",
+          "line": 12,
+          "end_line": 89,
+          "label": "cv_input"
+        }
+      ]
+    },
+    {
+      "id": "schema_prop",
+      "parent": "src_schemas",
+      "label": "proposal.py",
+      "sublabel": "Proposal Models",
+      "sources": [
+        {
+          "path": "src/schemas/proposal.py",
+          "line": 8,
+          "end_line": 29,
+          "label": "proposal"
+        }
+      ]
+    },
+    {
+      "id": "src_yaml",
+      "parent": "root",
+      "label": "src/yaml_layer",
+      "sublabel": "YAML & Markdown IO"
+    },
+    {
+      "id": "yaml_io",
+      "parent": "src_yaml",
+      "label": "io.py",
+      "sublabel": "serialize & parse YAML",
+      "sources": [
+        {
+          "path": "src/yaml_layer/io.py",
+          "line": 8,
+          "end_line": 91,
+          "label": "io"
+        }
+      ]
+    },
+    {
+      "id": "yaml_md",
+      "parent": "src_yaml",
+      "label": "markdown_parser.py",
+      "sublabel": "Markdown CV Parser",
+      "sources": [
+        {
+          "path": "src/yaml_layer/markdown_parser.py",
+          "line": 15,
+          "end_line": 274,
+          "label": "markdown_parser"
         }
       ]
     },
@@ -317,7 +497,7 @@
         {
           "path": "src/main.py",
           "line": 6,
-          "end_line": 15,
+          "end_line": 18,
           "label": "main"
         }
       ]
@@ -326,12 +506,12 @@
       "id": "config_py",
       "parent": "src_root",
       "label": "config.py",
-      "sublabel": "Pydantic BaseSettings",
+      "sublabel": "Pydantic Settings",
       "sources": [
         {
           "path": "src/config.py",
-          "line": 13,
-          "end_line": 42,
+          "line": 14,
+          "end_line": 49,
           "label": "config"
         }
       ]
@@ -340,12 +520,12 @@
       "id": "cli_py",
       "parent": "src_root",
       "label": "cli.py",
-      "sublabel": "Command-line interface",
+      "sublabel": "CLI Parse & Validate",
       "sources": [
         {
           "path": "src/cli.py",
-          "line": 1,
-          "end_line": 35,
+          "line": 12,
+          "end_line": 82,
           "label": "cli"
         }
       ]
@@ -356,7 +536,7 @@
       "dot": "cyan",
       "title": "Layered Architecture Separation",
       "items": [
-        "Tách bạch ranh giới rõ ràng: Tầng Giao tiếp (src/api) -> Tầng Điều phối (src/pipeline) -> Tầng Nghiệp vụ AI (src/core)",
+        "Tách bạch ranh giới rõ ràng: Tầng Giao tiếp (src/api) -> Tầng Điều phối (src/pipeline/generation) -> Tầng Nghiệp vụ AI (src/core)",
         "Đảm bảo khả năng mở rộng: Tầng LLM (src/llm) và Tầng Tri thức (src/knowledge) tuân thủ protocol trừu tượng"
       ]
     },
@@ -364,8 +544,8 @@
       "dot": "emerald",
       "title": "Data Contract & Guard Enforcements",
       "items": [
-        "src/schemas định nghĩa DTO chuẩn CanonicalTailorRequest và SemanticPatch tương thích RenderCV",
-        "src/guard hoạt động độc lập và thực thi kiểm định tất định 0% sai số số liệu"
+        "src/schemas định nghĩa DTO chuẩn GenerateCvRequest và GenerateCvResult tương thích RenderCV canonical schema",
+        "src/guard hoạt động độc lập và thực thi kiểm định tất định 0% sai số số liệu đối chiếu EvidenceStore"
       ]
     }
   ]

@@ -1,9 +1,18 @@
-# 07 — Render integration
+# 07 — Consumer integration
 
-POST `/v1/cv-generations` creates a job and returns HTTP 202. GET `/v1/cv-generations/:id` reads authoritative status, input and result. GET `/v1/cv-generations/:id/events` subscribes using Last-Event-ID. GET `/v1/cv-generations/active` supplies the Generate button lock.
+This repository exposes a standalone API, without importing Render code or reading
+its database. The new interface is POST /v1/ai/generations (202), followed by GET
+/v1/ai/generations/{id}, /events and /result. Authentication uses AI_SECRET_KEY.
+Consumers use requestId for idempotency and Last-Event-ID for SSE replay. Event
+sequence continues across attempts; attempt identifies restarted drafts.
 
-States: QUEUED → RUNNING → NEEDS_INPUT | COMPLETED | FAILED. The database allows one active job per owner. Repeating the same requestId and input returns the existing job; conflicts return 409.
+POST /v1/ai/generate/stream remains compatible with the existing backend payload
+and envelope. The AI adapter persists a job and subscribes to it. Closing that
+stream does not cancel the job; reposting the same request replays stored events.
+No FE/BE changes or Render migrations are part of this implementation. Existing
+backend timeouts/locks remain consumer behavior until a later integration update.
 
-The worker runs independently of SSE subscribers. Events are stored before sending. Browser reconnect or reload does not start another AI run. CV_GENERATION_TIMEOUT_MS defaults to 120000; overdue jobs are failed even after a worker restart.
-
-Only a validated, transactionally saved CV produces done with cvId. needs_input returns to the form for a new generation. error permits a new job using retryOfId and a fresh requestId to reuse the saved snapshot.
+AI COMPLETED/done means its validated result is durably available for 24 hours,
+not that a consumer saved a CV. Consumers should persist a result idempotently by
+AI job ID, and expose their own saved cvId only after that transaction succeeds.
+A failed consumer save should fetch the result again instead of regenerating.

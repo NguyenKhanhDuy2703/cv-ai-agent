@@ -41,6 +41,20 @@ def make_settings(env_overrides: dict):
 
 
 class TestEnvValidation:
+    def test_job_configuration_defaults_and_validation(self):
+        from src.config import Settings
+
+        config = Settings(_env_file=None, AI_PROVIDER="mock", AI_DATABASE_URL="")
+        assert config.ai_database_url == ""  # Pipeline/CLI can be used without storage.
+        assert config.ai_job_timeout_seconds == 120
+        assert config.ai_worker_concurrency == 2
+        assert config.ai_job_max_attempts == 2
+        assert config.ai_retention_hours == 24
+        with pytest.raises(ValidationError):
+            Settings(_env_file=None, AI_PROVIDER="mock", AI_WORKER_CONCURRENCY=0)
+        with pytest.raises(ValidationError):
+            Settings(_env_file=None, AI_PROVIDER="mock", AI_LEASE_SECONDS=5, AI_HEARTBEAT_SECONDS=5)
+
     def test_provider_mock_no_key_required(self):
         """provider=mock (stub/mock) should start fine without API key."""
         s = make_settings({"AI_PROVIDER": "mock"})
